@@ -527,6 +527,85 @@ class SignalsTable:
         self.con.close()
 
 
+class BarchartTokenTable:
+    def __init__(self, name="barchart"):
+        self.name = name
+        self.con = sqlite3.connect('database.db', check_same_thread=False)
+        self.cur = self.con.cursor()
+
+    async def create(self):
+        # Jadvalni yaratish
+        self.cur.execute(
+            f"""
+                CREATE TABLE IF NOT EXISTS {self.name} (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    created_at TEXT DEFAULT (CURRENT_TIMESTAMP),
+                    created_by INTEGER,
+                    cookie TEXT,
+                    token TEXT,
+                    status TEXT DEFAULT 'ACTIVE'
+                )
+            """
+        )
+        self.con.commit()
+
+    async def add(self, created_by, cookie, token):
+        print(created_by, cookie, token)
+        try:
+            self.cur.execute(
+                f"""
+                INSERT INTO {self.name} (created_by, cookie, token)
+                VALUES (?, ?, ?)
+                """,
+                (created_by, cookie, token)
+            )
+            self.con.commit()
+
+            # INSERT ishlaganligini tekshirish
+            if self.cur.rowcount > 0:
+                print("INSERT muvaffaqiyatli bajarildi")
+                return True
+            else:
+                print("INSERT bajarilmadi")
+                return False
+        except Exception as e:
+            print(f"Xatolik: {e}")
+            return False
+
+    async def search_by_status(self, status=None):
+        if status:
+            # So'rovni bajarish
+            self.cur.execute(
+                f"""
+                SELECT * FROM {self.name} WHERE status = ?
+                order by created_at DESC limit 1
+                """,
+                (status,)
+            )
+            response = self.cur.fetchone()  # Barcha natijalarni olish
+            if response:
+                # Ustun nomlarini olish
+                columns = [column[0] for column in self.cur.description]
+                # Natijani dict shaklida qaytarish
+                return dict(zip(columns, response))
+
+        return []
+
+    async def delete(self, status):
+        # signal_type_id bo'yicha o'chirish
+        self.cur.execute(
+            f"""
+            DELETE FROM {self.name} WHERE status = ?
+            """,
+            (status,)
+        )
+        self.con.commit()
+
+    def close(self):
+        # Bazani yopish
+        self.con.close()
+
+
 async def setup_tables():
     await UsersTable().create()
     await ExtraTable().create()
@@ -535,3 +614,4 @@ async def setup_tables():
     await ChannelsTable().create()
     await LessonsTable().create()
     await SignalsTable().create()
+    await BarchartTokenTable().create()

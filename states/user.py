@@ -42,5 +42,5 @@ class User(StatesGroup):
     enter_tariff = State()
     enter_count = State()
     remove_user = State()
-
+    barchart_token = State()
     enter_token = State()

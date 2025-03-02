@@ -2,13 +2,21 @@ from environs import Env
 
 env = Env()
 env.read_env()
-
+production =True
 pro = env.bool('PRODUCTION')
-BOT_TOKEN = env.str("BOT_TOKEN") if pro else env.str("TEST_BOT_TOKEN")
+BOT_TOKEN = env.str("BOT_TOKEN") if pro else env.str("BOT_TOKEN")
 SUPER_ADMIN = env.int("SUPER_ADMIN")
 ADMINS = env.list("ADMINS") + [SUPER_ADMIN]
 GOOGLE_API_KEY = env.str('GOOGLE_API_KEY')
+MISTRAL_API_KEY = env.str('MISTRAL_API_KEY')
 LESSONS_CHAT_ID=-4778690441
+sender_email = "alerts@thinkorswim.com"
+CHATGPT_API_KEY=env.str('CHATGPT_API_KEY')
+
+imap_server = 'imap.gmail.com'
+imap_port = 993
+imap_username = 'lapasovsardorbek2000@gmail.com'
+imap_password = 'iafikcrfprpclwuo'
 
 free_days = 15
 usage_limit_daily = 2000
@@ -297,6 +305,7 @@ class Texts:
 				"👨🏻‍💻Kanallar boshqaruvi",
 				"Darslarni yuklash",
 				"Signal turlari",
+				"Barchart token kiritish",
 			],
 			'en': [
 				"💰Rate Management",
@@ -311,6 +320,7 @@ class Texts:
 				"👨🏻‍💻Channel Management",
 				"Darslar",
 				"Signal turlari",
+				"Barchart token kiritish",
 			],
 			'ru': [
 				"💰Управление тарифами",
@@ -325,6 +335,7 @@ class Texts:
 				"👨🏻‍💻Управление каналом",
 				"Darslar",
 				"Signal turlari",
+				"Barchart token kiritish",
 			]
 		}[self.lang]
 	def send_post_to_rek(self):

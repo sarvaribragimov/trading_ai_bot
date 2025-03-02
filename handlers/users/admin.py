@@ -85,6 +85,10 @@ async def func(message: types.Message, state: FSMContext):
         signals_type = config.signals_type
         await User.signals.set()
         await message.answer(text="o'zgartiroqchi bo'lgan signalni tanlang",reply_markup=signals_b(signals_type))
+    elif message.text == sections[9]:
+        print('barchart')
+        await User.barchart_token.set()
+        await message.answer(text="token kiriting")
 
 
 

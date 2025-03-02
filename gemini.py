@@ -17,6 +17,7 @@ def remove_urls(text):
 
     return clean_text
 async def generate(text):
+    print(text)
     params = {
         'key': GOOGLE_API_KEY,
     }

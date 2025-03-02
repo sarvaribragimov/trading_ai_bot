@@ -5,7 +5,7 @@ from gemini import generate
 config = dotenv_values('.env')
 
 # Bot token can be obtained via https://t.me/BotFather
-TOKEN = config.get('TOKEN')
+TOKEN = config.get('BOT_TOKEN')
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types.message import ParseMode
