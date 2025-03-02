@@ -542,6 +542,8 @@ class BarchartTokenTable:
                     created_at TEXT DEFAULT (CURRENT_TIMESTAMP),
                     created_by INTEGER,
                     cookie TEXT,
+                    cookie2 TEXT,
+                    cookie3 TEXT,
                     token TEXT,
                     status TEXT DEFAULT 'ACTIVE'
                 )
@@ -549,15 +551,15 @@ class BarchartTokenTable:
         )
         self.con.commit()
 
-    async def add(self, created_by, cookie, token):
-        print(created_by, cookie, token)
+    async def add_token(self, created_by, token,status):
+        print(created_by, token)
         try:
             self.cur.execute(
                 f"""
-                INSERT INTO {self.name} (created_by, cookie, token)
+                INSERT INTO {self.name} (created_by, token,status)
                 VALUES (?, ?, ?)
                 """,
-                (created_by, cookie, token)
+                (created_by, token, status)
             )
             self.con.commit()
 
@@ -591,6 +593,42 @@ class BarchartTokenTable:
 
         return []
 
+    async def update_cookie1(self, cookie):
+        try:
+            self.cur.execute(
+                f"""
+                UPDATE {self.name}
+                SET cookie = ?
+                WHERE id = (SELECT MAX(id) FROM {self.name})
+                """, (cookie,)  # ✅ Tuple sifatida berish kerak
+            )
+            self.con.commit()
+        finally:
+            self.con.close()
+    async def update_cookie2(self, cookie2):
+        try:
+            self.cur.execute(
+                f"""
+                UPDATE {self.name}
+                SET cookie2 = ?
+                WHERE id = (SELECT MAX(id) FROM {self.name})
+                """, (cookie2,)  # ✅ Tuple sifatida berish kerak
+            )
+            self.con.commit()
+        finally:
+            self.con.close()
+    async def update_cookie3(self, cookie3):
+        try:
+            self.cur.execute(
+                f"""
+                UPDATE {self.name}
+                SET cookie3 = ?
+                WHERE id = (SELECT MAX(id) FROM {self.name})
+                """, (cookie3,)  # ✅ Tuple sifatida berish kerak
+            )
+            self.con.commit()
+        finally:
+            self.con.close()
     async def delete(self, status):
         # signal_type_id bo'yicha o'chirish
         self.cur.execute(

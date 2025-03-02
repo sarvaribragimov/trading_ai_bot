@@ -24,4 +24,44 @@ async def getapi():
     s=options_expirations(data['cookie'], data['token'])
     print(s)
 
-asyncio.run(getapi())
+# asyncio.run(getapi())
+
+
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+import os
+
+# Browser uchun options
+chrome_options = Options()
+chrome_options.add_experimental_option("prefs", {
+    "download.default_directory": os.getcwd(),  # Joriy papkaga yuklab olish
+    "download.prompt_for_download": False,
+    "download.directory_upgrade": True,
+    "safebrowsing.enabled": True
+})
+
+# Chrome WebDriver ishga tushirish
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+# Saytni ochish
+url = "https://www.barchart.com/stocks/quotes/AMD/long-options/long-call-options?orderBy=volume&orderDir=desc&expiration=2025-03-07-w"
+driver.get(url)
+time.sleep(5)  # Sahifaning yuklanishini kutish
+
+# Download tugmasini topish
+try:
+    download_button = driver.find_element(By.CLASS_NAME, "bc-glyph-download")
+    ActionChains(driver).move_to_element(download_button).click().perform()
+    print("Downloading...")
+    time.sleep(10)  # Fayl yuklanishini kutish
+except Exception as e:
+    print("Download tugmasi topilmadi:", e)
+
+# Brauzerni yopish
+driver.quit()

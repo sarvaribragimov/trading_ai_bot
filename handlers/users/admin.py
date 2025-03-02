@@ -88,8 +88,40 @@ async def func(message: types.Message, state: FSMContext):
     elif message.text == sections[9]:
         print('barchart')
         await User.barchart_token.set()
-        await message.answer(text="token kiriting")
+        await message.answer(text="Token kiriting")
 
+@dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.barchart_token, content_types=['text'])
+async def insert_token(message: types.Message, state: FSMContext):
+    try:
+        text = message.text
+        chat_id = message.from_user.id
+        db = database.UsersTable()
+        user = await db.search_status(chat_id=chat_id)
+        if user:
+            barchart = database.BarchartTokenTable()
+            if user['status'] == 'TOKEN':
+                await db.update_status(chat_id=chat_id, status='COOKIE')
+                await barchart.update_cookie1(cookie=text)
+                await message.answer(text="Cookie2 kiriting")
+            elif user['status'] == 'COOKIE':
+                await db.update_status(chat_id=chat_id, status='COOKIE3')
+                await barchart.update_cookie2(cookie2=text)
+                await message.answer(text="Cookie3 kiriting")
+            elif user['status'] == 'COOKIE3':
+                await db.update_status(chat_id=chat_id, status='ACTIVE')
+                await barchart.update_cookie3(cookie3=text)
+                await User.admin.set()
+                await message.answer(text="muvaffaqqiyatli kiritildi")
+
+            else:
+                d = await barchart.add_token(created_by=chat_id,token=text,status='TOKEN')
+                await db.update_status(chat_id=chat_id, status='TOKEN')
+                if d:
+                    await message.answer(text="Cookie kiriting")
+                else:
+                    await message.answer(text="bazaga qo'shilmadi xatolik")
+    except Exception as e:
+        await bot.send_message(chat_id=523886206, text=f"admin panel insert_signals error: {e}")
 
 
 @dp.callback_query_handler(lambda c: c.data, state=User.signals)
