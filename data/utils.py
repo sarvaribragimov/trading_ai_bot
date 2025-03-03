@@ -42,18 +42,105 @@ def options_expirations(cookie: str, token: str):
         "Accept": "application/json",
     }
     params = {
-        "fields": "expirationDate,expirationType,daysToExpiration,putVolume,callVolume,totalVolume,putCallVolumeRatio,putOpenInterest,callOpenInterest,totalOpenInterest,putCallOpenInterestRatio,averageVolatility,symbolCode,symbolType,lastPrice,dailyLastPrice",
+        "fields": "expirationDate,strikePrice,symbol,volume,timeCode,symbolType",
         "symbol": "TSLA",
         "page": 1,
         "limit": 100,
         "orderBy": "putCallVolumeRatio",
-        "orderDir": "asc",
-        "raw": 1,
+        "orderDir": "desc",
+        "raw": 0,
     }
-
     response = requests.get(url, headers=headers, params=params)
-
     if response.status_code == 200:
-        return response.json()
+        return response.json()['data']
     else:
-        return {"error": f"Failed to fetch data: {response.status_code}", "details": response.text}
+        return f"token eskirdi: {response.status_code} details {response.text}"
+
+def put_call_ratios_text(data):
+    print(data)
+    text = ""
+    # for index,item in enumerate(data):
+    #     text += (f"{index+1}) {item['expirationDate']} sanasigacha ushbu kompaniyada {item['strikePrice']} USD ga narxi ko'tarilishiga {item['netDebit']}"
+    #           f" dan {item['volume']} ta call option bor  ")
+
+    return text
+
+
+def long_put_volume(cookie: str, token: str):
+    url = "https://www.barchart.com/proxies/core-api/v1/options/get"
+    headers = {
+        "Cookie": cookie,
+        "x-xsrf-token": token,
+        "method":"GET",
+        "authority": "www.barchart.com",
+        "priority":"u=1, i",
+        "scheme": "https",
+        "accept-encoding":"gzip, deflate, br, zstd",
+        "accept-language":"en-US,en;q=0.9,uz;q=0.8",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/1129.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+    params = {
+        "fields": "expirationDate,netDebit,strikePrice,volume",
+        "baseSymbol": "NVDA",
+        "orderBy": "volume",
+        "orderDir": "desc",
+        "expirationDate": "nearest",
+        "eq(symbolType,put)": "",
+        "page": 1,
+        "limit": 4,
+        "raw": 0
+    }
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()['data']
+    else:
+        return f"token eskirdi: {response.status_code} details {response.text}"
+
+def long_put_volume_text(data):
+    text = ""
+    for index,item in enumerate(data):
+        text += (f"{index+1}) {item['expirationDate']} sanasigacha {item['strikePrice']} USD ga narxi tushishiga {item['netDebit']}"
+              f" dan {item['volume']} ta put option bor  ")
+
+    return text
+
+
+def long_call_volume(cookie: str, token: str):
+    url = "https://www.barchart.com/proxies/core-api/v1/options/get"
+    headers = {
+        "Cookie": cookie,
+        "x-xsrf-token": token,
+        "method":"GET",
+        "authority": "www.barchart.com",
+        "priority":"u=1, i",
+        "scheme": "https",
+        "accept-encoding":"gzip, deflate, br, zstd",
+        "accept-language":"en-US,en;q=0.9,uz;q=0.8",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/1129.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+    }
+    params = {
+        "fields": "expirationDate,netDebit,strikePrice,volume",
+        "baseSymbol": "NVDA",
+        "orderBy": "volume",
+        "orderDir": "desc",
+        "expirationDate": "nearest",
+        "eq(symbolType,call)": "",
+        "page": 1,
+        "limit": 5,
+        "raw": 0
+    }
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()['data']
+    else:
+        return f"token eskirdi: {response.status_code} details {response.text}"
+
+def long_call_volume_text(data):
+    text = ""
+    for index,item in enumerate(data):
+        text += (f"{index+1}) {item['expirationDate']} sanasigacha {item['strikePrice']} USD ga narxi ko'tarilishiga {item['netDebit']}"
+              f" dan {item['volume']} ta call option bor  ")
+
+    return text
