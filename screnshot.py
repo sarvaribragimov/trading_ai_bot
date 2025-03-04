@@ -41,11 +41,11 @@ class Setup:
         ticker = self.ticker
         self.filepath = os.path.join(main_folder, f"{ticker}.png")
         self.driver.get('https://www.tradingview.com/chart/?symbol=' + ticker)
-        time.sleep(2)
+        time.sleep(10)
         self.check_offer_win()
 
         try:
-            price_element = WebDriverWait(self.driver, 10).until(
+            price_element = WebDriverWait(self.driver, 1).until(
                 EC.presence_of_element_located(
                     (By.XPATH, "//div[contains(@class, 'container-qWcO4bp9')]")
                 )

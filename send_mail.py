@@ -40,10 +40,9 @@ async def process_email(msg):
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
             date_match = re.search(r"Date:\s+(.+)", message)
             date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
-            print(message)
             print('send_to_user.........')
             await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date)
-            print('ticker:', ticker,'||all algorithm:', all_algorithm,'||algorithm:',match.group(1),'||date:', date)
+            time.sleep(2)
 
             # await main(algorithm, formatted_date, ticker=ticker.strip())
         else:
@@ -52,8 +51,6 @@ async def process_email(msg):
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
             date_match = re.search(r"Date:\s+(.+)", message)
             date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
-            print(message)
-            print('tickers: ', tickers,'all algorithm',algorithm,'algorithm',match.group(1),'||date:', date)
             if tickers:
                 print('for all ti=========')
                 for ticker in tickers:

@@ -1,3 +1,5 @@
+from utils.db_api import database
+
 
 def insider_text(trans,volume):
     text = ("Insayderlar savdosi: Ushbu malumotlarga asoslanib Insayderlar savdosi haqida fikr bildir, yaqinda sotib chiqib ketgan bolsa bu yomon, "
@@ -15,19 +17,20 @@ def investment_text(insider,invest):
 
 
 def alltext(ticker,comp_info,market_value,market_task,insider,invest):
-    text = (f"Quyidagi malumotlarni o`rganib chiq va “stock tiker”   kompaniyasi uchun ijobiy yoki salbiy xabar ekanligini aniqla"
+    text = (f"Quyidagi malumotlarni o`rganib chiq va “stock tiker”   kompaniyasi uchun ijobiy yoki salbiy xabar ekanligini "
+            f" aniqla va javobing 600 ta belgidan oshmasn "
             f"kompaniya malumotlari: {market_value} {market_task}"
             f"“Stock tiker”  kompaniyasining so'ngi yangiliklari:{comp_info}"
             f"Insayderlar savdosi:   {insider}"
             f"Instutsional transaction: {invest}"
-            f" javobing 600 ta belgidan oshmasin probel qo'yma qisqa va lo'nda")
+            f" javobing 600 ta belgidan oshmasin probel qo'yma qisqa va lo'nda\n ")
     return text
 
 
 import requests
 
 
-def options_expirations(cookie: str, token: str):
+def options_expirations(ticker,cookie: str, token: str):
     url = "https://www.barchart.com/proxies/core-api/v1/options-expirations/get"
     headers = {
         "Cookie": cookie,
@@ -42,12 +45,11 @@ def options_expirations(cookie: str, token: str):
         "Accept": "application/json",
     }
     params = {
-        "fields": "expirationDate,strikePrice,symbol,volume,timeCode,symbolType",
-        "symbol": "TSLA",
+        "fields": "expirationDate,putVolume,callVolume,totalVolume,putCallVolumeRatio,symbolCode",
+        "symbol": ticker,
+        "meta":"field.shortName,field.type,field.description",
         "page": 1,
-        "limit": 100,
-        "orderBy": "putCallVolumeRatio",
-        "orderDir": "desc",
+        "limit": 1,
         "raw": 0,
     }
     response = requests.get(url, headers=headers, params=params)
@@ -57,16 +59,15 @@ def options_expirations(cookie: str, token: str):
         return f"token eskirdi: {response.status_code} details {response.text}"
 
 def put_call_ratios_text(data):
-    print(data)
     text = ""
-    # for index,item in enumerate(data):
-    #     text += (f"{index+1}) {item['expirationDate']} sanasigacha ushbu kompaniyada {item['strikePrice']} USD ga narxi ko'tarilishiga {item['netDebit']}"
-    #           f" dan {item['volume']} ta call option bor  ")
+    for index,item in enumerate(data):
+        text += (f"{item['expirationDate']} sanasigacha ushbu kompaniyada {item['putVolume']} ta Put option, va {item['callVolume']}"
+              f" ta call option bor ekan Put/call ratio {item['putCallVolumeRatio']} ekan ")
 
     return text
 
 
-def long_put_volume(cookie: str, token: str):
+def long_put_volume(ticker,cookie: str, token: str):
     url = "https://www.barchart.com/proxies/core-api/v1/options/get"
     headers = {
         "Cookie": cookie,
@@ -82,7 +83,7 @@ def long_put_volume(cookie: str, token: str):
     }
     params = {
         "fields": "expirationDate,netDebit,strikePrice,volume",
-        "baseSymbol": "NVDA",
+        "baseSymbol": ticker,
         "orderBy": "volume",
         "orderDir": "desc",
         "expirationDate": "nearest",
@@ -106,7 +107,7 @@ def long_put_volume_text(data):
     return text
 
 
-def long_call_volume(cookie: str, token: str):
+def long_call_volume(ticker: str,cookie: str, token: str):
     url = "https://www.barchart.com/proxies/core-api/v1/options/get"
     headers = {
         "Cookie": cookie,
@@ -122,7 +123,7 @@ def long_call_volume(cookie: str, token: str):
     }
     params = {
         "fields": "expirationDate,netDebit,strikePrice,volume",
-        "baseSymbol": "NVDA",
+        "baseSymbol": ticker,
         "orderBy": "volume",
         "orderDir": "desc",
         "expirationDate": "nearest",
@@ -144,3 +145,27 @@ def long_call_volume_text(data):
               f" dan {item['volume']} ta call option bor  ")
 
     return text
+
+
+async def getbarcharttableinfo(ticker):
+    db = database.BarchartTokenTable()
+    data = await db.search_by_status(status='TOKEN')
+    cookie = data['cookie'] + data['cookie2'] + data['cookie3']
+    result_text = ""
+    longputvolume = long_put_volume(ticker, cookie, data['token'])
+    if '401' not in longputvolume:
+        result_text += f"\n📉 Long Put Volume:\n{long_put_volume_text(longputvolume)}\n"
+    else:
+        result_text += "\n⚠️ Long Put Volume: 401 Unauthorized\n"
+    longcallvolume = long_call_volume(ticker, cookie, data['token'])
+    if '401' not in longcallvolume:
+        result_text += f"\n📈 Long Call Volume:\n{long_call_volume_text(longcallvolume)}\n"
+    else:
+        result_text += "\n⚠️ Long Call Volume: 401 Unauthorized\n"
+    optionsexpirations = options_expirations(ticker, cookie, data['token'])
+    if '401' not in optionsexpirations:
+        result_text += f"\n📆 Options Expirations:\n{put_call_ratios_text(optionsexpirations)}\n"
+    else:
+        result_text += "\n⚠️ Options Expirations: 401 Unauthorized\n"
+
+    return result_text.strip()  # Qaytariladigan natijani tozalash

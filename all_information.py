@@ -11,7 +11,7 @@ import asyncio
 from data.findvalue import tableinformation, extract_text_filter, companyinformation, findmarket
 from data.utils import alltext
 
-def get_column_inner_data(ticker):
+def get_column_inner_datasss(ticker):
     url = f"https://www.barchart.com/stocks/quotes/{ticker}/overview"
     url2 = f"https://www.barchart.com/stocks/quotes/{ticker}/news"
     headers = {
@@ -31,10 +31,10 @@ def get_column_inner_data(ticker):
     else:
         print(f"Xato: Sahifa yuklanmadi. Status kodi: {response.status_code}")
         return None
-ticker = "NVDA"
-data = get_column_inner_data(ticker)
-if data:
-    pass
+# ticker = "NVDA"
+# data = get_column_inner_datasss(ticker)
+# if data:
+#     pass
 
 def all_information(ticker):
     trans = transaction(ticker)
