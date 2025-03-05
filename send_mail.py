@@ -38,7 +38,6 @@ async def process_email(msg):
             date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
             if tickers:
                 for ticker in tickers:
-                    print('send_to_user.........')
                     await send_to_user(ticker=str(ticker),algorithm=str(match.group(1)),date=str(date))
 
 
