@@ -55,18 +55,15 @@ async def get_column_inner_data(ticker:str):
             comp_info = companyinformation(soup)
             insider = insider_ransaction(ticker)
             invest = get_invest(ticker)
-            # Barcha funksiyalarni parallel ishlatamiz
+            b = await getbarcharttableinfo(ticker)
+            print(b)
             text_filter_result, market_result, comp_info_result,insider,invest = await asyncio.gather(
                 text_filter_task, market_task, comp_info,insider,invest
             )
             d = alltext(ticker, comp_info_result, text_filter_result, market_result,insider,invest)
-            # if isinstance(d, dict):
-            #     d = json.dumps(d, ensure_ascii=False)  # Dictionary bo'lsa, stringga aylantiramiz
-            # elif isinstance(d, list):
-            #     d = "\n".join(map(str, d))
-            # elif not isinstance(d, str):
-            #     d = str(d)
-            return str(d)
+            s=b+d
+            print(type(s))
+            return s if isinstance(s, str) else str(s)
         else:
             print(f"get_column_inner_data error: {response.status_code}")
             return 'Malumot topilmadi'

@@ -17,12 +17,17 @@ def investment_text(insider,invest):
 
 
 def alltext(ticker,comp_info,market_value,market_task,insider,invest):
-    text = (f"Quyidagi malumotlarni o`rganib chiq va “stock tiker”   kompaniyasi uchun ijobiy yoki salbiy xabar ekanligini "
-            f" aniqla va javobing 600 ta belgidan oshmasn "
-            f"kompaniya malumotlari: {market_value} {market_task}"
-            f"“Stock tiker”  kompaniyasining so'ngi yangiliklari:{comp_info}"
+    text = (f"kompaniya malumotlari: {market_value} {market_task}"
+            f"Quyidagi yangiliklarni o`rganib chiq va ular orasidan  kompaniya uchun  ijobiy✅ yoki salbiy🚫"
+            f" asos ekanligini xulosa chiqar. Javobni quyidagi korinishda taqdim qil: 2.	Yangiliklari🚫"
+            f"•	Taiwan Semiconductor, Apple, Nvidia va AMD’ning kengayish rejalari — ✅ Ijobiy"
+            f"•	AQSh fond bozori Trampning tariflari sababli tushib ketdi — 🚫 Salbiy"
+            f"•	AQShning Kanada, Meksika va Xitoyga tariflari kuchga kirishi — 🚫 Salbiy"
+            f" so'ngi yangiliklar :{comp_info}"
             f"Insayderlar savdosi:   {insider}"
-            f"Instutsional transaction: {invest}"
+            f"Intutsional transaction ichidan aksiyalar sonini  ijobiy  va salbiyga kopaytirgan kompaniyalar  umumiy summasini har biri uchun alohida aniqla va  eng katta  summa ijobiyga yoki salbiyga kopayganligini aniqla. N/A bolganlarni hiisobdan chiqar. Ushbu savdolar umumiy qiymatidan kelib chiqib  ijobiy✅ yoki salbiy🚫 asos ekanligini xulosa chiqar."
+            f" Javobni quyidagi korinishda taqdim qil:3.	Instutsinal investorlar savdosi✅ Savdoga kirgan: $693.10M Sovdodan chiqqan: $296.52M Eng katta o‘zgarish: "
+            f"Ijobiy tarafda — Employees Retirement System of Texas $536.62M . Instutsional transaction:{invest}"
             f" javobing 600 ta belgidan oshmasin probel qo'yma qisqa va lo'nda\n ")
     return text
 
@@ -154,7 +159,11 @@ async def getbarcharttableinfo(ticker):
     result_text = ""
     longputvolume = long_put_volume(ticker, cookie, data['token'])
     if '401' not in longputvolume:
-        result_text += f"\n📉 Long Put Volume:\n{long_put_volume_text(longputvolume)}\n"
+        result_text += (f"\n Quyidagi option malumotlariga asoslanib  optionlar soni va narxini xisoblab eng kop summa kiritilgan  2ta put va 2ta call option uchun strike narxlarini aniqla va  yaxshi holatda aynan qaysi narxgacha kotarilishi mumkin yoki yomon  holatda aynan qaysi narxgacha tushib ketishi mumkin.  Put/call  nisbatini va sonini yaxlitlab solishtir va 0.5dan kichik qiymati biz uchun yaxshi ekanligini hisobga ol.  ijobiy✅  yoki salbiy🚫 asos ekanligini xulosa chiqar va "
+                        f"Javobni quyidagi korinishda taqdim qil: 📉 Long Put Volume: 5.	Option xulosa: 🚫 narx yomon holatda 03/07gacha $115gacha tushib ketishi Yaxshi holatda $120ga ko`tarilib berishi mumkin "
+                        f"Put narx tushishiga: •	$115.00 strike: $445 × 123,217 = $54,931,565 🛑 ENG KATTA PUT •	$120.00 strike: $765 × 63,336 = $48,455,040 Call narx ko‘tarilishiga:"
+                        f"•	$120.00 strike: $163 × 148,242 = $24,156,446 🟢 ENG KATTA CALL •	$125.00 strike: $69 × 121,363 = $8,373,047 "
+                        f"Put/Call ratio: 1M put/1,4M call, 0.74 (0.5 dan katta) \n{long_put_volume_text(longputvolume)}\n")
     else:
         result_text += "\n⚠️ Long Put Volume: 401 Unauthorized\n"
     longcallvolume = long_call_volume(ticker, cookie, data['token'])

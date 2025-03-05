@@ -41,7 +41,7 @@ class Setup:
         ticker = self.ticker
         self.filepath = os.path.join(main_folder, f"{ticker}.png")
         self.driver.get('https://www.tradingview.com/chart/?symbol=' + ticker)
-        time.sleep(10)
+        time.sleep(2)
         self.check_offer_win()
 
         try:
@@ -72,7 +72,7 @@ class Setup:
         image = Image.open(BytesIO(screenshot))
         image.save(self.filepath)
 
-        return self.filepath, prices  # Ikkita qiymat qaytariladi
+        return self.filepath, prices
 
     def close_browser(self):
         self.driver.delete_all_cookies()
