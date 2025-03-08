@@ -1,10 +1,13 @@
-aiogram~=2.14
+aiogram~=2.25.2
 environs~=8.0.0
 deep-translator==1.11.4
-googletrans==4.0.0-rc1
+#googletrans==4.0.0-rc1
 pandas==2.0.3
 openpyxl==3.1.2
 trafilatura==1.7.0
-selenium
-seleniumbase==4.20.6
+selenium==4.13.0
+lxml==5.3.1
+#httpx==0.28.1
+openai==1.65.4
 Pillow==10.4.0
+#seleniumbase
