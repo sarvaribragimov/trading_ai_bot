@@ -23,6 +23,7 @@ async def process_email(msg):
     date, _ = decode_header(msg.get("Date"))[0]
     if config.sender_email in str(from_):
         message = str(subject).strip()
+        # print('email',message,date)
         if "Alert: New symbol:" in message:
             ticker, all_algorithm = message.replace("Alert: New symbol:", "").replace("was added to", "%%").split("%%")
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)

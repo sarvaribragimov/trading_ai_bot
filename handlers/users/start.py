@@ -15,7 +15,6 @@ from keyboards.default.all import menu_markup,  informations_key, cities
 
 @dp.message_handler(commands=['admin'], state='*',chat_type=types.ChatType.PRIVATE, chat_id=config.ADMINS)
 async def func(message: types.Message, state: FSMContext):
-    print('Admin panel start')
     _user_data = await state.get_data()
     lang = 'uz'
     if 'lang' in _user_data.keys():
@@ -32,12 +31,9 @@ async def func(message: types.Message, state: FSMContext):
 async def bot_start(message: types.Message, state: FSMContext):
     id = message.from_user.id
     _user_data = await state.get_data()
-    print('id=',id)
-    print('_user_data=',_user_data)
     _user_data['chat_id'] = id
     await state.update_data(_user_data)
     command_args = message.get_args()
-    print('command_args=',command_args)
     if command_args and int(command_args) != int(id):
         _user_data['reffer_by'] = command_args
     db = database.UsersTable()
@@ -70,7 +66,6 @@ async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
 
 @dp.message_handler(content_types=['text'], state=User.lang, chat_type=types.ChatType.PRIVATE)
 async def bot_start(message: types.Message, state: FSMContext):
-    print('message lang')
     id = message.from_user.id
     _user_data = await state.get_data()
     if message.text in config.langs.keys():

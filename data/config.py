@@ -3,12 +3,12 @@ from environs import Env
 env = Env()
 env.read_env()
 production =True
-pro = env.bool('PRODUCTION')
+pro = env.bool('PRODUCTION',default=True)
 BOT_TOKEN = env.str("BOT_TOKEN") if pro else env.str("BOT_TOKEN")
 SUPER_ADMIN = env.int("SUPER_ADMIN")
 ADMINS = env.list("ADMINS") + [SUPER_ADMIN]
 GOOGLE_API_KEY = env.str('GOOGLE_API_KEY')
-# MISTRAL_API_KEY = env.str('MISTRAL_API_KEY')
+MISTRAL_API_KEY = env.str('MISTRAL_API_KEY')
 LESSONS_CHAT_ID=-4778690441
 sender_email = "alerts@thinkorswim.com"
 CHATGPT_API_KEY=env.str('CHATGPT_API_KEY')

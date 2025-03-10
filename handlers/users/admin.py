@@ -17,7 +17,6 @@ from handlers.users import functions as funcs
 
 @dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.admin, content_types=['text'])
 async def func(message: types.Message, state: FSMContext):
-    print('Admin 1')
     id = message.from_user.id
     _user_data = await state.get_data()
     lang = _user_data['lang']
@@ -86,7 +85,6 @@ async def func(message: types.Message, state: FSMContext):
         await User.signals.set()
         await message.answer(text="o'zgartiroqchi bo'lgan signalni tanlang",reply_markup=signals_b(signals_type))
     elif message.text == sections[9]:
-        print('barchart')
         await User.barchart_token.set()
         await message.answer(text="Token kiriting")
 
@@ -126,18 +124,13 @@ async def insert_token(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(lambda c: c.data, state=User.signals)
 async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
-    print('signals 10')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)
-    print(call.data)
     update_result = await database.UsersTable().update_status(chat_id=call.from_user.id, status=call.data)
-    print(update_result)
     db = database.SignalsTable()
-    print('callbacksdac',call.from_user.id)
     get = await db.search_by_status(call.data)
     if get:
-        print('get',get)
         await User.addsignal.set()
         await bot.send_message(chat_id=call.from_user.id,text="Mavjud signallar,signal qo'shish uchun pastga yozing",reply_markup=signals_list_b(get))
     else:
@@ -163,7 +156,6 @@ async def insert_signals(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(lambda c: c.data, state=User.admin_channels)
 async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
-    print('Admin 2')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)
@@ -185,7 +177,6 @@ async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
 
 @dp.message_handler(content_types='text', chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.addchannel)
 async def func(message: types.Message,  state: FSMContext):
-    print('admin 3')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)
@@ -202,12 +193,10 @@ async def func(message: types.Message,  state: FSMContext):
 
 @dp.message_handler(content_types='text', chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.get_tokens)
 async def func(message: types.Message):
-    print('Admin 4')
     tariff =await database.TariffsTable().search(title=message.text)
     await message.answer(await funcs.list_tokens(tariff[1]))
 @dp.message_handler(content_types='text', chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.enter_tariff)
 async def func(message: types.Message, state: FSMContext):
-    print('Admin 5')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)
@@ -219,7 +208,6 @@ async def func(message: types.Message, state: FSMContext):
     await User.enter_count.set()
 @dp.message_handler(chat_id=config.ADMINS, chat_type=types.ChatType.PRIVATE, state=User.enter_count, content_types=['text'])
 async def func(message: types.Message, state: FSMContext):
-    print('Admin 6')
     count = message.text.replace("/", '')
     _user_data = await state.get_data()
     lang = _user_data['lang']
@@ -236,7 +224,6 @@ async def func(message: types.Message, state: FSMContext):
     await User.admin.set()
 @dp.message_handler(chat_id=config.ADMINS, chat_type=types.ChatType.PRIVATE, state=User.remove_user, content_types=['text'])
 async def func(message: types.Message, state: FSMContext):
-    print('Admin 7')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)
@@ -260,7 +247,6 @@ async def func(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=types.ContentType.ANY, chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.sendtousers)
 async def func(message: types.Message,  state: FSMContext):
-    print('Admin 8')
     id = message.from_user.id
     _user_data = await state.get_data()
     lang = _user_data['lang']
@@ -292,7 +278,6 @@ async def func(message: types.Message,  state: FSMContext):
 
 @dp.callback_query_handler(lambda c: c.data, state=User.manage_tariff)
 async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
-    print('Admin 10')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)
@@ -320,7 +305,6 @@ async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
 @dp.message_handler(content_types='text', chat_id=config.ADMINS, chat_type=types.ChatType.PRIVATE,
                     state=User.addtariff)
 async def func(message: types.Message, state: FSMContext):
-    print('Admin 11')
     _user_data = await state.get_data()
     lang = _user_data['lang']
     texts = config.Texts(lang)

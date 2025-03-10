@@ -153,28 +153,29 @@ def long_call_volume_text(data):
 
 
 async def getbarcharttableinfo(ticker):
-    db = database.BarchartTokenTable()
-    data = await db.search_by_status(status='TOKEN')
-    cookie = data['cookie'] + data['cookie2'] + data['cookie3']
-    result_text = ""
-    longputvolume = long_put_volume(ticker, cookie, data['token'])
-    if '401' not in longputvolume:
-        result_text += (f"\n Quyidagi option malumotlariga asoslanib  optionlar soni va narxini xisoblab eng kop summa kiritilgan  2ta put va 2ta call option uchun strike narxlarini aniqla va  yaxshi holatda aynan qaysi narxgacha kotarilishi mumkin yoki yomon  holatda aynan qaysi narxgacha tushib ketishi mumkin.  Put/call  nisbatini va sonini yaxlitlab solishtir va 0.5dan kichik qiymati biz uchun yaxshi ekanligini hisobga ol.  ijobiy✅  yoki salbiy🚫 asos ekanligini xulosa chiqar va "
-                        f"Javobni quyidagi korinishda taqdim qil: 📉 Long Put Volume: 5.	Option xulosa: 🚫 narx yomon holatda 03/07gacha $115gacha tushib ketishi Yaxshi holatda $120ga ko`tarilib berishi mumkin "
-                        f"Put narx tushishiga: •	$115.00 strike: $445 × 123,217 = $54,931,565 🛑 ENG KATTA PUT •	$120.00 strike: $765 × 63,336 = $48,455,040 Call narx ko‘tarilishiga:"
-                        f"•	$120.00 strike: $163 × 148,242 = $24,156,446 🟢 ENG KATTA CALL •	$125.00 strike: $69 × 121,363 = $8,373,047 "
-                        f"Put/Call ratio: 1M put/1,4M call, 0.74 (0.5 dan katta) \n{long_put_volume_text(longputvolume)}\n")
-    else:
-        result_text += "\n⚠️ Long Put Volume: 401 Unauthorized\n"
-    longcallvolume = long_call_volume(ticker, cookie, data['token'])
-    if '401' not in longcallvolume:
-        result_text += f"\n📈 Long Call Volume:\n{long_call_volume_text(longcallvolume)}\n"
-    else:
-        result_text += "\n⚠️ Long Call Volume: 401 Unauthorized\n"
-    optionsexpirations = options_expirations(ticker, cookie, data['token'])
-    if '401' not in optionsexpirations:
-        result_text += f"\n📆 Options Expirations:\n{put_call_ratios_text(optionsexpirations)}\n"
-    else:
-        result_text += "\n⚠️ Options Expirations: 401 Unauthorized\n"
-
-    return result_text.strip()  # Qaytariladigan natijani tozalash
+    try:
+        db = database.BarchartTokenTable()
+        data = await db.search_by_status(status='TOKEN')
+        if data:
+            cookie = data['cookie'] + data['cookie2']
+            result_text = ""
+            longputvolume = long_put_volume(ticker, cookie, data['token'])
+            if '401' not in longputvolume:
+                result_text += (f"\n Quyidagi option malumotlariga asoslanib  optionlar soni va narxini xisoblab eng kop summa kiritilgan  2ta put va 2ta call option uchun strike narxlarini aniqla va  yaxshi holatda aynan qaysi narxgacha kotarilishi mumkin yoki yomon  holatda aynan qaysi narxgacha tushib ketishi mumkin.  Put/call  nisbatini va sonini yaxlitlab solishtir va 0.5dan kichik qiymati biz uchun yaxshi ekanligini hisobga ol.  ijobiy✅  yoki salbiy🚫 asos ekanligini xulosa chiqar va "
+                                f"Javobni quyidagi korinishda taqdim qil: 📉 Long Put Volume: 5.	Option xulosa: 🚫 narx yomon holatda 03/07gacha $115gacha tushib ketishi Yaxshi holatda $120ga ko`tarilib berishi mumkin "
+                                f"Put narx tushishiga: •	$115.00 strike: $445 × 123,217 = $54,931,565 🛑 ENG KATTA PUT •	$120.00 strike: $765 × 63,336 = $48,455,040 Call narx ko‘tarilishiga:"
+                                f"•	$120.00 strike: $163 × 148,242 = $24,156,446 🟢 ENG KATTA CALL •	$125.00 strike: $69 × 121,363 = $8,373,047 "
+                                f"Put/Call ratio: 1M put/1,4M call, 0.74 (0.5 dan katta) \n{long_put_volume_text(longputvolume)}\n")
+            else:
+                result_text += "\n⚠️ Long Put Volume: 401 Unauthorized\n"
+            longcallvolume = long_call_volume(ticker, cookie, data['token'])
+            if '401' not in longcallvolume:
+                result_text += f"\n📈 Long Call Volume:\n{long_call_volume_text(longcallvolume)}\n"
+            else:
+                result_text += "\n⚠️ Long Call Volume: 401 Unauthorized\n"
+            optionsexpirations = options_expirations(ticker, cookie, data['token'])
+            if '401' not in optionsexpirations:
+                result_text += f"\n📆 Options Expirations:\n{put_call_ratios_text(optionsexpirations)}\n"
+            return result_text.strip()  # Qaytariladigan natijani tozalash
+    except Exception as e:
+        print('barchart table info error',e)

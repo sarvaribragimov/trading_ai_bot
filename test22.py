@@ -22,9 +22,12 @@ async def getapi(ticker):
     print('coolll',col)
 
 
-async def test(ticker):
-    te = await getapi(ticker)
-    print(te)
+# async def test(ticker):
+#     # te = await getapi(ticker)
+#
+#     barchart = await getbarcharttableinfo(ticker)
+#     print(barchart)
 
-asyncio.run(test('NVDA'))
+
+asyncio.run(getapi('NVDA'))
 
