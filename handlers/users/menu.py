@@ -1,8 +1,11 @@
 import asyncio
+import json
 import time
 
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
+
+from chatgpt import openai
 from loader import dp
 from handlers.users import functions as funcs
 from aiogram.dispatcher import FSMContext
@@ -103,12 +106,21 @@ async def bot_start(message: types.Message, state: FSMContext):
 		await message.answer("❌" + texts.send_ticker())
 		return
 	ticker = message.text
-	await state.update_data(ticker=ticker, titles=config.answers_ques[lang])
-	await message.answer(texts.choose_one(), reply_markup=cities([texts.ticker_complience()] + config.answers[lang] + [texts.main()]))  #10 savol
-	await User.choose_question.set()
+	# await state.update_data(ticker=ticker, titles=config.answers_ques[lang])
+	await message.answer(text='❇️Javobingiz tayyorlanmoqda iltimos kuting ...')
+	ai_response = await openai(f'{ticker} kompaniyasini tahlil qilib ber hozir savdoga kirsam boladimi hafta oxirigacha qaysi narxga kotarilib berishi mumkin.')
+	file_path = "ishalal.json"
+	with open(file_path, "r", encoding="utf-8") as file:
+		data = json.load(file)
+		print(f'Ticker{ticker[1:]}=type{type(ticker)}')
+		stock_info = next((stock for stock in data if stock["Ticker"] == str(ticker[1:])), None)
+		print(stock_info)
+		await message.answer(text=f'{stock_info["Compliance"]} {ai_response}')
+	await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+	await User.menu.set()
 
 
-@dp.message_handler(content_types=['text'], state=User.choose_question, chat_type=types.ChatType.PRIVATE)
+@dp.message_handler(content_types=['text'], state=User.choose_question)
 async def bot_start(message: types.Message, state: FSMContext):
 	print('message handler 4')
 	_user_data = await state.get_data()

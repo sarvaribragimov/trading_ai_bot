@@ -21,3 +21,4 @@ async def openai(question):
     except Exception as e:
         return f"openai error: {str(e)}"
 
+# -mini

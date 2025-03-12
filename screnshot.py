@@ -52,22 +52,18 @@ class Setup:
             )
             price = price_element.text.strip()
             lines = price.splitlines()
+            print(lines)
 
-            # Tartibli format
             if len(lines) == 4:
                 main_price = lines[0].replace("price:", "").strip()  # Narx
                 currency = lines[1].strip()  # Valyuta
                 change_value = lines[2].strip()  # O'zgarish qiymati
                 change_percent = lines[3].strip()  # O'zgarish foizi
 
-                # Natijani birlashtirish
                 prices = f"Price: {main_price} {currency} | Change: {change_value} ({change_percent})"
-            print(f"Aksiya narxi: {price}")  # Narxni chop eting
         except Exception as e:
-            price = "Narx topilmadi"
             print(f"Narxni olishda xato: {e}")
-
-        chart = self.driver.find_element(By.XPATH, "/html/body/div[2]/div[5]")
+        chart = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[5]")
         screenshot = chart.screenshot_as_png
         image = Image.open(BytesIO(screenshot))
         image.save(self.filepath)

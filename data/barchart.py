@@ -14,10 +14,9 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 
 def transaction(ticker):
-
     chrome_options = Options()
-    chrome_options.add_argument('--ignore-certificate-errors')  # SSL xatolarini e'tiborsiz qoldirish
-    chrome_options.add_argument('--ignore-ssl-errors')  # SSL xatolarini e'tiborsiz qoldirish
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--ignore-ssl-errors')
     driver = webdriver.Chrome(options=chrome_options)
     url = f"https://www.barchart.com/stocks/quotes/{ticker}/insider-trades"
     driver.get(url)
@@ -210,7 +209,6 @@ def get(ticker):
             if market_value_str.startswith("$"):
                 value = market_value_str[1:-1]  # "$" belgisi va oxirgi harfni olib tashlaymiz
                 multiplier = market_value_str[-1]  # "M" yoki "B" ni olish
-
                 try:
                     numeric_value = float(value) * (1e6 if multiplier == "M" else 1e9 if multiplier == "B" else 1)
 
@@ -225,10 +223,7 @@ def get(ticker):
                         })
                 except ValueError:
                     continue  # Agar raqamga o‘tkazib bo‘lmasa, o‘tkazib yuboramiz
-
     return filtered_data
-
-
 t = get("NVDA")
 
 if t:

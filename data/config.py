@@ -20,7 +20,7 @@ imap_password = 'iafikcrfprpclwuo'
 
 free_days = 15
 usage_limit_daily = 2000
-admin_username = "@optimusgptbotuzb"
+admin_username = "@Sardor_Lapasov"
 reffered_users = 5
 refferals = {
 	5: 0.5,
@@ -162,7 +162,6 @@ class Texts:
 				"📈Signal turlari",
 				"📝O'z savolingizni yo'llang",
 				"🔍Aksiya tikerini kiriting",
-				"💣Premiumga o'tish",
 				"📚 Darslar",
 				"🇺🇿Til sozlamalari"
 			],
@@ -170,7 +169,6 @@ class Texts:
 				"📈Signal types",
 				"📝Send your question",
 				"🔍Enter stock ticker",
-				"💣Premium",
 				"📚 Уроки",
 				"🇺🇿Language Settings"
 			],
@@ -178,7 +176,6 @@ class Texts:
 				"📈Типы сигналов",
 				"📝Отправьте свой вопрос",
 				"🔍Введите биржевой тикер",
-				"💣Премиум",
 				"📚 Lessons",
 				"🇺🇿Настройки языка"
 			]
@@ -230,8 +227,8 @@ class Texts:
 		}[self.lang]
 	def waiting_generate(self):
 		return {
-			'uz': '♻️Kuting javob tayyorlanmoqda...',
-			'en': "♻️Please wait for a response...",
+			'uz': '♻️ 1 daqiqa Kuting javob tayyorlanmoqda...',
+			'en': "♻️Please wait for a minute...",
 			'ru': "♻️Пожалуйста, дождитесь ответа..."
 
 		}[self.lang]
@@ -256,9 +253,9 @@ class Texts:
 
 	def refferal_link(self):
 		return {
-			'uz': 'Optimus GPT Botga o\'ting va tradingda AI yordamchiga ega bo\'ling\n👉🏻 https://t.me/{}',
-			'en': 'Go to Optimus GPT Bot and get an AI assistant in trading\n👉🏻 https://t.me/{}',
-			"ru": 'Перейдите в Optimus GPT Bot и получите ИИ-помощника в торговле\n👉🏻 https://t.me/{}'
+			'uz': 'Botga o\'ting va tradingda AI yordamchiga ega bo\'ling\n👉🏻 https://t.me/{}',
+			'en': 'Go to Bot and get an AI assistant in trading\n👉🏻 https://t.me/{}',
+			"ru": 'Перейдите в Bot и получите ИИ-помощника в торговле\n👉🏻 https://t.me/{}'
 		}[self.lang]
 	def choose_tariff(self):
 		return {
@@ -441,106 +438,12 @@ class Texts:
 			'en': '✅Bot permission extended to {}.{}.{}',
 			'ru': '✅Разрешение бота расширено до {}.{}.{}',
 		}[self.lang]
-questions = [
-	"What is the business activity of {} stock?",
-	"What are the main source of profit of {} stock?",
-	"Who are the main business partners of {} stock? ",
-	"Who are the main competitors of {} stock in its sector? ",
-	"What is the IPO date of {} stock? ",
-	"Total Institutional ownership of {} stock",
-	"What are the competitive advantages of {} stock?",
-	"What is the financial health of {} stock? ",
-	"Make comparative analysis of {} stock with its peers and identify which company is best in the industry",
-	"Who are the key members of the management team in {} stock? ",
-	"What are the Top 10 reasons to invest in {} stock? ",
-	"What are the red flags of investing into {} stock? ",
-	"What are the outlook of financial experts into the future of {} stock? ",
-	"Present me Top 10 unique products of {} stock and tell me the value of its products in industry scale. ",
-	"Are there any upcoming catalyst or new products of {} stock? ",
-	"How is the financial situation of {} stock compared to its peers? ",
-	"Top 10 competitors of {} stock and their stock tickers in the U.S market. ",
-	"Market sentiment of {} stock",
-	"Provide me with expert fundamental analysis of {} stock. ",
-	"What is the specific product, service or brand project of {} stock? ",
-	"Which stock indices and ETFs include {} stock? "
-]
 
-answers = {
-	'uz': [
-		"Kompaniya biznes faoliyati",
-		"Asosiy daromad manbalari",
-		"Kompaniyaning asosiy biznes sheriklari",
-		"Kompaniyaning asosiy raqiblari",
-		"Kompaniyaning IPO sanasi",
-		"Institutsional investorlar hajmi",
-		"Kompaniyaning ustun tomonlari",
-		"Kompaniyaning sanoatidagi o'rni",
-		"Kompaniyaning bozor baholagan narxi",
-		"Kompaniyaning asosiy rahbariyati",
-		"Kompaniya aksiyasiga investitsiya qilishning 10ta sababi",
-		"Kompaniya aksiyalariga investitsiya kiritmaslik sabablari",
-		"Kompaniyaning kelajagiga moliyaviy tahlilchilarning fikri",
-		"Sanoatdagi top 10 mahsuloti ",
-		"Kompaniyada kutilayotgan yangi o’zgarishlar va mahsulotlar",
-		"Kompaniyaning raqiblariga nisbatan moliyaviy xolati",
-		"Kompaniyaning Top 10ta raqiblari",
-		"Kompaniyaning bozor sentimenti",
-		"Kompaniyaning to’liq ekspert fundamental tahlili",
-		"Kompaniyaning asosiy mahsulot va servizlari",
-		"Kompaniyaning indekslar va ETFlarda mavjudligi",
-
-	],
-	'en': [
-		"Company business activity",
-		"Main sources of income",
-		"The main business partners of the company",
-		"The main competitors of the company",
-		"Date of IPO of the company",
-		"Institutional ownership of the company",
-		"Advantages of the company",
-		"Financial status of the company",
-		"Company position in the industry",
-		"The main management of the company",
-		"10 reasons to invest in company shares ",
-		"Reasons not to invest in company shares",
-		"Opinion of financial analysts on the future of the company",
-		" Top 10 unique products of the company",
-		"New changes and products expected in the company",
-		"Financial position of the company in relation to its competitors",
-		"Top 10 competitors of the company",
-		"Market sentiment of the company",
-		"Full expert fundamental analysis of the company",
-		"Main products and services of the company",
-		"Company's presence in indices and ETFs",
-
-	],
-	"ru": [
-		"Деловая деятельность компании",
-		"Основные источники дохода",
-		"Основные деловые партнеры компании.",
-		"Основные конкуренты компании",
-		"Дата IPO компании",
-		"Институциональное участие в компании ",
-		"Преимущества компании",
-		"Финансовое состояние компании",
-		"Положение компании в отрасли",
-		"Главное руководство компании",
-		"10 причин инвестировать в акции компании ",
-		"Причины не инвестировать в акции компании",
-		"Мнение финансовых аналитиков о будущем компании",
-		"Топ-10 уникальных продуктов компании",
-		"Ожидаются новые изменения и продукты в компании",
-		"Финансовое положение компании по отношению к конкурентам.",
-		"Топ-10 конкурентов компании",
-		"Сентимент компании на рынке",
-		"Полный экспертный фундаментальный анализ компании",
-		"Основные продукты и услуги компании",
-		"Присутствие компании в индексах и ETF",
-	]
-}
+questions = "kompaniyasini tahlil qilib ber hozir savdoga kirsam boladimi hafta oxirigacha qaysi narxga kotarilib berishi mumkin."
+answers='s'
 def answer_que(lang):
 	answer_que_uz = {}
-	for a, b in zip(questions, answers[lang]):answer_que_uz[b] = a
+	for a, b in zip(questions, answers):answer_que_uz[b] = a
 	return answer_que_uz
 answers_ques = {
 	'uz': answer_que('uz'),

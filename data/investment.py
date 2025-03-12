@@ -54,7 +54,7 @@ def invest(ticker):
                             "change": cols[change_index]
                         })
                 except ValueError:
-                    continue  # Agar raqamga o‘tkazib bo‘lmasa, o‘tkazib yuboramiz
+                    continue
     return filtered_data
 def get_invest(ticker):
     t =  invest(ticker)
