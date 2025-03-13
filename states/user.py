@@ -14,7 +14,7 @@ class User(StatesGroup):
     premium = State()
     choose_tariff = State()
 
-
+    waiting_for_name=State()
 
     payment = State()
     confirm_tariff = State()
@@ -22,12 +22,13 @@ class User(StatesGroup):
 
 
 
-
+    create_lessons = State()
     admin = State()
     admin_channels = State()
     sendtousers = State()
     wait = State()
     signals = State()
+    lessons_btn = State()
     addsignal = State()
     addchannel = State()
     deletechannel = State()

@@ -36,9 +36,7 @@ async def send_to_user(ticker, algorithm,date):
                 db = database.UsersTable()
                 users = await db.search(all=True)
                 count = 0
-                photo_file_id = message.photo[-1].file_id  # Yuborilgan rasmning file_id sini saqlab qolamiz
-
-            # Endi barcha foydalanuvchilarga rasmni file_id orqali yuborish
+                photo_file_id = message.photo[-1].file_id
             for user in users:
                 try:
                     if photo_file_id:

@@ -43,3 +43,13 @@ def cities(data_list, sort_by_row = False):
     return markup
 
 
+def lessons_btn(lessons):
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    for lesson in lessons:
+        _, _, chat_id, lesson_name, lesson_id = lesson
+        markup.add(
+            types.InlineKeyboardButton(text=lesson_name, callback_data=f"lesson.{lesson_id}")
+        )
+
+    return markup
+

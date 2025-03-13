@@ -52,8 +52,6 @@ class Setup:
             )
             price = price_element.text.strip()
             lines = price.splitlines()
-            print(lines)
-
             if len(lines) == 4:
                 main_price = lines[0].replace("price:", "").strip()  # Narx
                 currency = lines[1].strip()  # Valyuta

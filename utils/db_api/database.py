@@ -397,18 +397,18 @@ class LessonsTable:
         )
         self.con.commit()
 
-    async def add(self, created_at, created_by, group_id, name, message_id):
-        if not await self.search(message_id=message_id):
+    async def create_lessons(self, group_id, message_id,name):
+        if not await self.get_lessons(message_id=message_id):
             self.cur.execute(
                 f"""
-                INSERT INTO {self.name} (created_at, created_by, group_id, name, message_id)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO {self.name} (group_id, message_id,name)
+                VALUES (?, ?, ?)
                 """,
-                (created_at, created_by, group_id, name, message_id)
+                (group_id, message_id, name)
             )
             self.con.commit()
 
-    async def search(self, name=None, message_id=None):
+    async def get_lessons(self, name=None, message_id=None):
         if message_id:
             response = self.cur.execute(
                 f"""
@@ -433,7 +433,7 @@ class LessonsTable:
             ).fetchall()
             return response
 
-    async def delete(self, message_id):
+    async def lesson_delete(self, message_id):
         self.cur.execute(
             f"""
             DELETE FROM {self.name} WHERE message_id = ?
@@ -644,6 +644,84 @@ class BarchartTokenTable:
         self.con.close()
 
 
+class BarchartExpired:
+    def __init__(self, name="token_expired"):
+        self.name = name
+        self.con = sqlite3.connect('database.db', check_same_thread=False)
+        self.cur = self.con.cursor()
+
+    async def create(self):
+        self.cur.execute(
+            f"""
+                CREATE TABLE IF NOT EXISTS {self.name} (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    created_at TEXT DEFAULT (CURRENT_TIMESTAMP),
+                    created_by INTEGER,
+                    status TEXT DEFAULT 'ACTIVE'
+                )
+            """
+        )
+        self.con.commit()
+
+    async def add_token(self, status):
+        try:
+            self.cur.execute(
+                f"""
+                INSERT INTO {self.name} (status)
+                VALUES (?)
+                """,
+                (status)
+            )
+            self.con.commit()
+            if self.cur.rowcount > 0:
+                print("INSERT muvaffaqiyatli bajarildi")
+                return True
+            else:
+                print("INSERT bajarilmadi")
+                return False
+        except Exception as e:
+            print(f"Xatolik: {e}")
+            return False
+    async def update_status(self, status):
+        try:
+            self.cur.execute(
+                f"""
+                UPDATE {self.name}
+                SET status = ?
+                WHERE id = (SELECT MAX(id) FROM {self.name})
+                """, (status,)  # ✅ Tuple sifatida berish kerak
+            )
+            self.con.commit()
+        finally:
+            self.con.close()
+    async def search_by_status(self, status=None):
+        if status:
+            self.cur.execute(
+                f"""
+                SELECT * FROM {self.name} WHERE status = ?
+                order by created_at DESC limit 1
+                """,
+                (status,)
+            )
+            response = self.cur.fetchone()
+            if response:
+                columns = [column[0] for column in self.cur.description]
+                return dict(zip(columns, response))
+        return []
+
+    async def delete(self, status):
+        self.cur.execute(
+            f"""
+            DELETE FROM {self.name} WHERE status = ?
+            """,
+            (status,)
+        )
+        self.con.commit()
+
+    def close(self):
+        self.con.close()
+
+
 async def setup_tables():
     await UsersTable().create()
     await ExtraTable().create()
@@ -653,3 +731,4 @@ async def setup_tables():
     await LessonsTable().create()
     await SignalsTable().create()
     await BarchartTokenTable().create()
+    await BarchartExpired().create()

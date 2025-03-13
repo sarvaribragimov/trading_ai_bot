@@ -13,7 +13,7 @@ from states.user import User
 from data import config
 from utils.db_api import database
 from datetime import datetime as dt
-from keyboards.default.all import menu_markup,  informations_key, cities
+from keyboards.default.all import menu_markup, informations_key, cities, lessons_btn
 from gemini import generate
 from keyboards.inline.all import getTariffs
 from .userpermissons import is_granted, is_member_all_chats
@@ -48,16 +48,16 @@ async def bot_start(message: types.Message, state: FSMContext):
 	elif message.text == user_sections[2]: #send_ticker
 		await message.answer(texts.send_ticker(), reply_markup=cities([texts.orqaga()]))
 		await User.send_ticker.set()
-	elif message.text == user_sections[3]: #premium
-		await message.answer(message.text, reply_markup=cities(texts.premium_sections() + [texts.main()]))
-		await User.premium.set()
-	elif message.text == user_sections[4]: #lessons
-		await message.answer(message.text, reply_markup=cities(config.langs.keys()))
-		await User.lessons.set()
+	elif message.text == user_sections[3]: #lessons
+		db = database.LessonsTable()
+		lessons = await db.get_lessons()
+		await User.lessons_btn.set()
+		await message.answer(message.text, reply_markup=lessons_btn(lessons))
+
+
 	elif message.text == user_sections[5]: #lang
 		await message.answer(message.text, reply_markup=cities(config.langs.keys()))
 		await User.lang.set()
-
 
 @dp.message_handler(content_types=['text'], state=User.send_question, chat_type=types.ChatType.PRIVATE)
 async def bot_start(message: types.Message, state: FSMContext):
@@ -126,9 +126,7 @@ async def bot_start(message: types.Message, state: FSMContext):
 	_user_data = await state.get_data()
 	lang = _user_data['lang']
 	texts = config.Texts(lang)
-
 	if await funcs.is_limited(_user_data): return
-
 	ticker = _user_data['ticker'].replace('$', '').upper()
 	titles = _user_data['titles']
 	if message.text == texts.ticker_complience():

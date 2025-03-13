@@ -9,7 +9,7 @@ SUPER_ADMIN = env.int("SUPER_ADMIN")
 ADMINS = env.list("ADMINS") + [SUPER_ADMIN]
 GOOGLE_API_KEY = env.str('GOOGLE_API_KEY')
 MISTRAL_API_KEY = env.str('MISTRAL_API_KEY')
-LESSONS_CHAT_ID=-4778690441
+LESSONS_CHAT_ID=-1002538368305
 sender_email = "alerts@thinkorswim.com"
 CHATGPT_API_KEY=env.str('CHATGPT_API_KEY')
 
@@ -17,7 +17,6 @@ imap_server = 'imap.gmail.com'
 imap_port = 993
 imap_username = 'lapasovsardorbek2000@gmail.com'
 imap_password = 'iafikcrfprpclwuo'
-
 free_days = 15
 usage_limit_daily = 2000
 admin_username = "@Sardor_Lapasov"

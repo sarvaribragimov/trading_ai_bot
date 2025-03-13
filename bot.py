@@ -2,6 +2,7 @@
 from aiogram import executor
 from dotenv import dotenv_values
 from gemini import generate
+
 config = dotenv_values('.env')
 
 # Bot token can be obtained via https://t.me/BotFather
@@ -40,6 +41,7 @@ async def func(message: types.Message):
 			await message.answer(to_markdown(text), parse_mode=types.ParseMode.MARKDOWN)
 		except:
 			await message.answer(to_markdown(text))
+
 
 
 @dp.message_handler()

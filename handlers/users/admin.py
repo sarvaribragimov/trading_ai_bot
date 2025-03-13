@@ -1,5 +1,6 @@
 from numpy.ma.core import swapaxes
 
+from data.config import LESSONS_CHAT_ID
 from keyboards.inline.all import signals_b, signals_list_b
 from loader import bot,dp
 from aiogram import types
@@ -79,6 +80,8 @@ async def func(message: types.Message, state: FSMContext):
                              reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton(text=texts.orqaga())))
         await User.remove_user.set()
     elif message.text == sections[7]:
+        await User.create_lessons.set()
+        await message.answer(text='message_id kiriting👇')
         print('Admin panel section darslar6')
     elif message.text == sections[8]:
         signals_type = config.signals_type
@@ -87,6 +90,31 @@ async def func(message: types.Message, state: FSMContext):
     elif message.text == sections[9]:
         await User.barchart_token.set()
         await message.answer(text="Token kiriting")
+
+
+@dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.create_lessons, content_types=['text'])
+async def insert_lessons(message: types.Message, state: FSMContext):
+    try:
+        text = message.text
+        print('text ',text)
+        await state.update_data(message_id=text)
+        await message.answer(text="Dars nomini kiriting")
+        await User.waiting_for_name.set()
+    except Exception as e:
+        await bot.send_message(chat_id=523886206, text=f"admin panel insert_lessons error: {e}")
+
+@dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.waiting_for_name, content_types=['text'])
+async def update_lessons(message: types.Message, state: FSMContext):
+    try:
+        text = message.text
+        user_data = await state.get_data()
+        message_id = user_data.get("message_id")
+        db = database.LessonsTable()
+        await db.create_lessons(group_id=LESSONS_CHAT_ID, message_id=message_id,name=text)
+        await message.answer(text="Muvaffaqqiyatli saqlandi")
+        await User.admin.set()
+    except Exception as e:
+        await bot.send_message(chat_id=523886206, text=f"admin panel update_lessons error: {e}")
 
 @dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.barchart_token, content_types=['text'])
 async def insert_token(message: types.Message, state: FSMContext):
@@ -271,9 +299,25 @@ async def func(message: types.Message,  state: FSMContext):
     await User.admin.set()
     # await User.wait.set()
 
+from aiogram.utils.exceptions import TelegramAPIError
 
 
-
+@dp.callback_query_handler(lambda c: c.data, state=User.lessons_btn)
+async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
+    user_data = await state.get_data()
+    lang = user_data['lang']
+    print(lang)
+    c = call.data[7:]
+    db = database.LessonsTable()
+    lessons = await db.get_lessons(message_id=int(c))
+    channel_id,leson_name,message_id = lessons[2],lessons[3],lessons[4]
+    try:
+        await dp.bot.copy_message(chat_id='523886206', from_chat_id=channel_id, message_id=message_id)
+    except TelegramAPIError:
+        await db.lesson_delete(message_id=int(c))
+        await dp.bot.send_message(chat_id='523886206',text="❌ Darslik topilmadi! Iltimos, boshqa darsni tanlang.")
+    except Exception as e:
+        await dp.bot.send_message(f"⚠ Xatolik yuz berdi: {e}")
 # Admin panel page
 
 @dp.callback_query_handler(lambda c: c.data, state=User.manage_tariff)
