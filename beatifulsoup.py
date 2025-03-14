@@ -1,13 +1,8 @@
 import asyncio
-import json
-import requests
 from bs4 import BeautifulSoup
 import httpx
-import aiohttp
-
-from data.config import production
 from data.get_company_info import extract_text_filter, companyinformation, findmarket, insider_ransaction, get_invest
-from data.utils import alltext, getbarcharttableinfo
+from data.utils import alltext
 
 
 async def get_column_inner_data(ticker: str):

@@ -1,4 +1,3 @@
-from data.get_company_info import insider_ransaction
 from utils.db_api import database
 
 
