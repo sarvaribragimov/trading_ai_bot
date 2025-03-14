@@ -25,10 +25,10 @@ async def get_column_inner_data(ticker: str):
             comp_info_task = companyinformation(soup)
             insider_task = insider_ransaction(ticker)
             invest_task = get_invest(ticker)
-            text_filter_result, market_result, comp_info_result, insider_result, invest_result = await asyncio.gather(
-                text_filter_task, market_task, comp_info_task, insider_task, invest_task
+            text_filter_result, market_result, comp_info_result, invest_result,insider_result = await asyncio.gather(
+                text_filter_task, market_task, comp_info_task,invest_task,insider_task
             )
-            d = alltext(ticker, comp_info_result, text_filter_result, market_result, insider_result, invest_result)
+            d = alltext(ticker, comp_info_result, text_filter_result, market_result, invest_result,insider_result)
             return d.strip()
         else:
             return f"get_column_inner_data error: {response.status_code}"

@@ -670,14 +670,12 @@ class BarchartExpired:
                 INSERT INTO {self.name} (status)
                 VALUES (?)
                 """,
-                (status)
+                (status,)
             )
             self.con.commit()
             if self.cur.rowcount > 0:
-                print("INSERT muvaffaqiyatli bajarildi")
                 return True
             else:
-                print("INSERT bajarilmadi")
                 return False
         except Exception as e:
             print(f"Xatolik: {e}")
