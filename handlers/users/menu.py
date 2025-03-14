@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 
 from beatifulsoup import get_column_inner_data
 from chatgpt import openai
-from data.get_company_info import insider_ransaction, is_halal
+from data.get_company_info import insider_ransaction, get_stock_info
 from data.utils import getbarcharttableinfo
 from loader import dp
 from handlers.users import functions as funcs
@@ -104,29 +104,31 @@ async def bot_start(message: types.Message, state: FSMContext):
 		return
 	ticker = str(message.text[1:])
 	await message.answer(text='❇️Javobingiz tayyorlanmoqda iltimos kuting ...')
-	barchart = await getbarcharttableinfo(ticker)
-	if '401' in barchart:
-		print('401')
-		await database.BarchartExpired().add_token(status='INACTIVE')
-		await message.answer(texts.choose(), reply_markup=menu_markup(lang))
-		await User.menu.set()
-	else:
-		print('200')
-		co = await get_column_inner_data(ticker)
-		questions = str(co) + str(barchart)
-		print(questions)
-		ai_response = await openai(questions)
-		web = Setup(ticker=str(ticker))
-		web.init()
-		path, price = web.screenshot()
-		web.close_browser()
-		text = f"<b>Aksiya tikeri:</b> {ticker} {is_halal(ticker)}\n" \
-			   f"<b>Narxi:</b> {price}\n"
-		with open(path, 'rb') as photo:
-			await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)
-			await dp.bot.send_message(chat_id=message.chat.id, text=f"<b>Taxlil</b> {ticker}\n {ai_response}")
-		await message.answer(texts.choose(), reply_markup=menu_markup(lang))
-		await User.menu.set()
+	res = await database.BarchartExpired().get_max_token()
+	if res['status'] == 'ACTIVE':
+		barchart = await getbarcharttableinfo(ticker)
+		if '401' in barchart:
+			print('401')
+			await database.BarchartExpired().add_token(status='INACTIVE')
+			await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+			await User.menu.set()
+		else:
+			print('200')
+			co = await get_column_inner_data(ticker)
+			questions = str(co) + str(barchart)
+			print(questions)
+			ai_response = await openai(questions)
+			web = Setup(ticker=str(ticker))
+			web.init()
+			path, price = web.screenshot()
+			web.close_browser()
+			text = f"<b>Aksiya tikeri:</b> {ticker}\n Islamicly: {get_stock_info(ticker)}\n" \
+				   f"<b>Narxi:</b> {price}\n"
+			with open(path, 'rb') as photo:
+				await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)
+				await dp.bot.send_message(chat_id=message.chat.id, text=f"<b>Taxlil</b> {ticker}\n {ai_response}")
+			await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+			await User.menu.set()
 
 
 @dp.message_handler(content_types=['text'], state=User.choose_question)

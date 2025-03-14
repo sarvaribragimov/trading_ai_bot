@@ -3,7 +3,7 @@ import json
 
 from chatgpt import openai
 from beatifulsoup import get_column_inner_data
-from data.get_company_info import insider_ransaction, is_halal
+from data.get_company_info import insider_ransaction, is_halal, get_stock_info
 from data.utils import options_expirations, long_put_volume, long_put_volume_text, long_call_volume, \
     long_call_volume_text, put_call_ratios_text, getbarcharttableinfo
 from utils.db_api import database
@@ -47,5 +47,5 @@ async def test(ticker):
 # t = insider_ransaction('AMD')
 # print(t)
 
-t = is_halal('AMD')
+t = get_stock_info('AMD')
 print(t)

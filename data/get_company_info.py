@@ -181,3 +181,9 @@ def is_halal(ticker):
             return stock_info.get("Compliance", "") if stock_info else ""
     return ""
 
+def get_stock_info(ticker):
+    file_path = "new_is_halal.json"
+    with open(file_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+        stock_info = next((item for item in data if item[0] == ticker), None)
+        return stock_info[2] if stock_info else ""
