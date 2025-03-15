@@ -46,7 +46,6 @@ async def send_mail():
     """Har 5 soniyada pochtani tekshirib, yangi xabarlarni yuboradi"""
     while True:
         try:
-            print('start')
             imap = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
             imap.login(IMAP_USERNAME, IMAP_PASSWORD)
             imap.select("inbox")
@@ -61,5 +60,4 @@ async def send_mail():
             imap.logout()
         except Exception as e:
             print(f"IMAP xatosi: {e}")
-        print('sleeeeeeeep')
         await asyncio.sleep(5)

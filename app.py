@@ -18,7 +18,7 @@ async def on_startup(dispatcher):
     await setup_tables()
     # await UsersTable().delete(config.SUPER_ADMIN)
     await UsersTable().delete(1805233745)
-    # asyncio.create_task(send_mail())
+    asyncio.create_task(send_mail())
 
 
 

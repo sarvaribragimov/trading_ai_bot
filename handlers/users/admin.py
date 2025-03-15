@@ -139,7 +139,6 @@ async def insert_token(message: types.Message, state: FSMContext):
                 await User.admin.set()
                 await database.BarchartExpired().update_status(status='ACTIVE')
                 await message.answer(text="muvaffaqqiyatli kiritildi")
-
             else:
                 d = await barchart.add_token(created_by=chat_id,token=text,status='TOKEN')
                 await db.update_status(chat_id=chat_id, status='TOKEN')

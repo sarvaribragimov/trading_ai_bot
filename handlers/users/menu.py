@@ -60,7 +60,6 @@ async def bot_start(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=['text'], state=User.send_question, chat_type=types.ChatType.PRIVATE)
 async def bot_start(message: types.Message, state: FSMContext):
-	print('message handler 2')
 	_user_data = await state.get_data()
 	lang = _user_data['lang']
 	texts = config.Texts(lang)
@@ -71,18 +70,15 @@ async def bot_start(message: types.Message, state: FSMContext):
 		await User.menu.set()
 		return
 	msg = await message.answer(texts.waiting_generate())
-	# start_time = time.process_time()
 	q = message.text
 	if lang != 'en':
 		q = funcs.trans(q, 'en')
 	await message.answer_chat_action(types.ChatActions.TYPING)
-	parts = await generate(q)
+	parts = await openai(q)
 	if parts:
-		text = ' '.join(i['text'] for i in parts)
+		text = parts
 		if lang != 'en':
 			text = funcs.trans(text, lang)
-		# process_time = time.process_time() - start_time
-		# text += f"\n{process_time}"
 		await dp.bot.delete_message(chat_id=message.from_user.id, message_id=msg.message_id)
 		try:
 			await message.answer(funcs.to_markdown(text), parse_mode=types.ParseMode.MARKDOWN)

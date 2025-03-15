@@ -552,7 +552,6 @@ class BarchartTokenTable:
         self.con.commit()
 
     async def add_token(self, created_by, token,status):
-        print(created_by, token)
         try:
             self.cur.execute(
                 f"""
@@ -565,10 +564,8 @@ class BarchartTokenTable:
 
             # INSERT ishlaganligini tekshirish
             if self.cur.rowcount > 0:
-                print("INSERT muvaffaqiyatli bajarildi")
                 return True
             else:
-                print("INSERT bajarilmadi")
                 return False
         except Exception as e:
             print(f"Xatolik: {e}")
