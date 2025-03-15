@@ -21,25 +21,30 @@ async def process_email(msg):
     subject, _ = decode_header(msg["Subject"])[0]
     from_, _ = decode_header(msg.get("From"))[0]
     date, _ = decode_header(msg.get("Date"))[0]
+    print('subject ===',subject,'frommm', from_)
     if config.sender_email in str(from_):
         message = str(subject).strip()
-        # print('email',message,date)
         if "Alert: New symbol:" in message:
             ticker, all_algorithm = message.replace("Alert: New symbol:", "").replace("was added to", "%%").split("%%")
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
             date_match = re.search(r"Date:\s+(.+)", message)
             date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
             print('send_to_user.........')
-            await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date)
+            matches = re.search(r"(?:was added to|were added to)\s+(.+)", message)
+            algorithm_day = matches.group(1) if matches else "Unknown"
+            await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date,day=algorithm_day)
         else:
             tickers, algorithm = message.replace("Alert: New symbols:", "").replace("were added to", "%%").split("%%")
             tickers = [t.strip() for t in tickers.split(",")]
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
+            print('send_to_user.........', match)
+            matches = re.search(r"(?:was added to|were added to)\s+(.+)", message)
+            algoritm_day = matches.group(1) if matches else "Unknown"
             date_match = re.search(r"Date:\s+(.+)", message)
-            date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
+            date = date_match.group(2) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
             if tickers:
                 for ticker in tickers:
-                    await send_to_user(ticker=str(ticker),algorithm=str(match.group(1)),date=str(date))
+                    await send_to_user(ticker=str(ticker),algorithm=str(match.group(1)),date=str(date),day=algoritm_day)
 
 
 async def send_mail():

@@ -306,13 +306,13 @@ from aiogram.utils.exceptions import TelegramAPIError
 async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
     user_data = await state.get_data()
     lang = user_data['lang']
-    print(lang)
+    print('call',call.from_user.id)
     c = call.data[7:]
     db = database.LessonsTable()
     lessons = await db.get_lessons(message_id=int(c))
     channel_id,leson_name,message_id = lessons[2],lessons[3],lessons[4]
     try:
-        await dp.bot.copy_message(chat_id='523886206', from_chat_id=channel_id, message_id=message_id)
+        await dp.bot.copy_message(chat_id=call.from_user.id, from_chat_id=channel_id, message_id=message_id)
     except TelegramAPIError:
         await db.lesson_delete(message_id=int(c))
         await dp.bot.send_message(chat_id='523886206',text="❌ Darslik topilmadi! Iltimos, boshqa darsni tanlang.")

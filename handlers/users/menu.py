@@ -105,6 +105,7 @@ async def bot_start(message: types.Message, state: FSMContext):
 		barchart = await getbarcharttableinfo(ticker)
 		if '401' in barchart:
 			print('401')
+			await dp.bot.send_message(chat_id='523886206')
 			await database.BarchartExpired().add_token(status='INACTIVE')
 			await message.answer(texts.choose(), reply_markup=menu_markup(lang))
 			await User.menu.set()
@@ -118,11 +119,14 @@ async def bot_start(message: types.Message, state: FSMContext):
 			web.init()
 			path, price = web.screenshot()
 			web.close_browser()
-			text = f"<b>Aksiya tikeri:</b> {ticker}\n Islamicly: {get_stock_info(ticker)}\n" \
-				   f"<b>Narxi:</b> {price}\n"
+			text = f"<b>Aksiya tikeri:</b> {ticker}\n<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
+				   f"<b>Narxi:</b> {price[6:]}\n"
 			with open(path, 'rb') as photo:
-				await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)
-				await dp.bot.send_message(chat_id=message.chat.id, text=f"<b>Taxlil</b> {ticker}\n {ai_response}")
+				if len(text) + len(ai_response) > 1000:
+					await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)
+					await dp.bot.send_message(chat_id=message.chat.id, text=f"<b>Taxlil</b> {ticker}\n {ai_response}")
+				else:
+					await dp.bot.send_message(chat_id=message.chat.id, photo=photo,text=f"{text} {ai_response}")
 			await message.answer(texts.choose(), reply_markup=menu_markup(lang))
 			await User.menu.set()
 
@@ -197,12 +201,17 @@ async def bot_start(message: types.Message, state: FSMContext):
 async def update_signals_status(message: types.Message, state: FSMContext):
 	try:
 		trading_options = config.signals_type
+		_user_data = await state.get_data()
+		lang = _user_data['lang']
+		texts = config.Texts(lang)
 		for status, text in trading_options.items():
 			if message.text == text:
 				if status:
 					update_result = await database.UsersTable().update_status(chat_id=message.from_user.id, status=status)
 					if update_result:
 						await message.answer(text=f'Siz {message.text} tanladingiz")')
+						await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+						await User.menu.set()
 					else:
 						await message.answer(text='Status yangilanishida xatolik yuz berdi.')
 				else:

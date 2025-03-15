@@ -186,4 +186,7 @@ def get_stock_info(ticker):
     with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
         stock_info = next((item for item in data if item[0] == ticker), None)
-        return stock_info[2] if stock_info else ""
+        if stock_info[2] == 'Joiz':
+            return f"{stock_info[2]} ✅ "
+        else:
+            return f"{stock_info[2]} 🚫 " if stock_info else ""

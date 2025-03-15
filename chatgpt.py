@@ -11,7 +11,7 @@ async def openai(question):
           api_key=CHATGPT_API_KEY
         )
         response = client.chat.completions.create(
-          model="gpt-4o-mini",
+          model="gpt-4o",
           store=True,
           messages=[
             {"role": "user", "content": question}
@@ -21,4 +21,4 @@ async def openai(question):
     except Exception as e:
         return f"openai error: {str(e)}"
 
-# -mini
+# model="gpt-4o-mini",
