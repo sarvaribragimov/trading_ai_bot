@@ -53,3 +53,18 @@ def lessons_btn(lessons):
 
     return markup
 
+def format_date(num):
+	return f"0{num}" if num <= 9 else str(num)
+
+def hour_minutes(confirmation=False):
+	m = types.InlineKeyboardMarkup(row_width=6)
+	m.add(types.InlineKeyboardButton(text="⌛️Soatlar", callback_data="hours"))
+	hours = [types.InlineKeyboardButton(text=format_date(i), callback_data="h " + format_date(i)) for i in range(24)]
+	m.add(*hours)
+	m.add(types.InlineKeyboardButton(text="⏳Minutlar", callback_data="minutes"))
+	minutes = [types.InlineKeyboardButton(text=format_date(i), callback_data="m " + format_date(i)) for i in range(60)]
+	m.add(*minutes)
+	if confirmation:
+		m.add(types.InlineKeyboardButton(text="✅Tasdiqlash", callback_data="confirm"))
+	return m
+

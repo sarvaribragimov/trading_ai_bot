@@ -45,3 +45,6 @@ class User(StatesGroup):
     remove_user = State()
     barchart_token = State()
     enter_token = State()
+    enter_ticker = State()
+    set_start_date = State()
+    set_end_date = State()

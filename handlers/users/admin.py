@@ -8,12 +8,11 @@ from data import config
 from utils.db_api import database
 from aiogram.dispatcher import FSMContext
 from states.user import User
-from keyboards.default.all import admin_menu_key, tariffs_key
+from keyboards.default.all import admin_menu_key, tariffs_key, hour_minutes
+from keyboards.inline.all import *
 from datetime import datetime as dt, timedelta
 from handlers.users import functions as funcs
-
-
-
+from utils.db_api.database import Interval
 
 
 @dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.admin, content_types=['text'])
@@ -90,6 +89,73 @@ async def func(message: types.Message, state: FSMContext):
     elif message.text == sections[9]:
         await User.barchart_token.set()
         await message.answer(text="Token kiriting")
+    elif message.text == sections[10]: # set interval
+        await message.answer("Algorithm nomini kiriting:\n<i>111_BUYALERT |REBN, MINM</i>", reply_markup=types.ReplyKeyboardMarkup(resize_keyboard=True).add(types.KeyboardButton(config.orqaga)))
+        await User.enter_ticker.set()
+    elif message.text == sections[11]: # all intervals
+        intervals = await Interval().search(all=True)
+        txt = "\n".join([f"Ticker: <b>{i[0].upper()}</b>, <i>{i[1]} dan {i[2]} gacha</i>" for i in intervals])
+        await message.answer(txt)
+
+
+@dp.message_handler(chat_id=config.ADMINS, chat_type=types.ChatType.PRIVATE, state=User.enter_ticker, content_types=['text'])
+async def func(message: types.Message, state: FSMContext):
+    _user_data = await state.get_data()
+    lang = _user_data['lang']
+    if config.orqaga == message.text:
+        await message.answer("Admin panel", reply_markup=await admin_menu_key(lang))
+        await User.admin.set()
+        return
+    ticker = ' '.join(str(message.text).strip().lower().replace('.', '').split())
+    msg = await message.answer("Boshlang'ich vaqtni belgilang👇", reply_markup=hour_minutes())
+    await state.update_data(ticker=ticker, start_hour="00", start_minute="00", end_hour="00", end_minute="00", msg_id=msg.message_id)
+    await User.set_start_date.set()
+@dp.callback_query_handler(lambda c : c.data, chat_type=types.ChatType.PRIVATE, state=User.set_start_date)
+async def func(call: types.CallbackQuery, state: FSMContext):
+    _user_data = await state.get_data()
+    id = call.from_user.id
+    print('admin section darsl')
+    data = call.data
+    start_hour, start_minute = _user_data['start_hour'], _user_data['start_minute']
+    if data.split()[0] == 'h':
+        start_hour = data.split()[1]
+        await state.update_data(start_hour=start_hour)
+    if data.split()[0] == 'm':
+        start_minute = data.split()[1]
+        await state.update_data(start_minute=start_minute)
+    if data == 'confirm':
+        await dp.bot.edit_message_text(chat_id=id, text="Oxirgi vaqtni belgilang👇", reply_markup=hour_minutes(), message_id=_user_data['msg_id'])
+        await User.set_end_date.set()
+        return
+    await dp.bot.edit_message_text(chat_id=id, text=f"Boshlang'ich vaqt: {start_hour}:{start_minute}\nTasdiqlaysizmi? ", reply_markup=hour_minutes(confirmation=True), message_id=_user_data['msg_id'])
+
+
+@dp.callback_query_handler(lambda c: c.data, chat_type=types.ChatType.PRIVATE, state=User.set_end_date)
+async def func(call: types.CallbackQuery, state: FSMContext):
+    _user_data = await state.get_data()
+    lang = _user_data['lang']
+    id = call.from_user.id
+    data = call.data
+    end_hour, end_minute = _user_data['end_hour'], _user_data['end_minute']
+    if data.split()[0] == 'h':
+        end_hour = data.split()[1]
+        await state.update_data(end_hour=end_hour)
+    if data.split()[0] == 'm':
+        end_minute = data.split()[1]
+        await state.update_data(end_minute=end_minute)
+    if data == 'confirm':
+        ticker = _user_data['ticker']
+        start_date = _user_data['start_hour'] + ":" + _user_data['start_minute']
+        end_date = _user_data['end_hour'] + ":" + _user_data['end_minute']
+        await Interval().addinterval(ticker, start_date, end_date)
+        await dp.bot.delete_message(chat_id=id,  message_id=_user_data['msg_id'])
+        await call.message.answer(text="Muvaffaqiyatli o'rnatildi!", reply_markup=await admin_menu_key(lang))
+        # await call.message.answer("" + _user_data['start_hour']+ _user_data['start_minute']+ _user_data['end_hour']+ _user_data['end_minute'])
+        await User.admin.set()
+        return
+    await dp.bot.edit_message_text(chat_id=id, text=f"Boshlang'ich vaqt: {end_hour}:{end_minute}\nTasdiqlaysizmi? ",
+                                   reply_markup=hour_minutes(confirmation=True), message_id=_user_data['msg_id'])
+
 
 
 @dp.message_handler(chat_id=config.ADMINS,chat_type=types.ChatType.PRIVATE, state=User.create_lessons, content_types=['text'])

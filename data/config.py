@@ -290,11 +290,8 @@ class Texts:
 		return {
 			'uz':  [
 				"💰Tariflar boshqaruvi",
-
-
 				"📲Foydalanuvchilarga xabar yuborish",
 				"📊Statistika",
-
 				"📃Mavjud tokenlar",
 				"♻️Yangi generatsiya qilish",
 				"🗑Foydalanuvchini o'chirish",
@@ -302,6 +299,8 @@ class Texts:
 				"Darslarni yuklash",
 				"Signal turlari",
 				"Barchart token kiritish",
+				"🕐Stock signal oralig'ini belgilash",
+				"🕑🕒Barcha intervallar",
 			],
 			'en': [
 				"💰Rate Management",
@@ -317,6 +316,8 @@ class Texts:
 				"Darslar",
 				"Signal turlari",
 				"Barchart token kiritish",
+				"🕐Stock signal oralig'ini belgilash",
+				"🕑🕒Barcha intervallar",
 			],
 			'ru': [
 				"💰Управление тарифами",
@@ -332,6 +333,8 @@ class Texts:
 				"Darslar",
 				"Signal turlari",
 				"Barchart token kiritish",
+				"🕐Stock signal oralig'ini belgilash",
+				"🕑🕒Barcha intervallar",
 			]
 		}[self.lang]
 	def send_post_to_rek(self):
@@ -450,7 +453,7 @@ answers_ques = {
 	'ru': answer_que('ru')
 }
 
-
+orqaga = "🔙 Orqaga"
 searched = """
 Apple Inc AAPL:NASDAQ- Open0.00- Day High0.00- Day Low0.00- Prev Close185.04- 52 Week High199.62- 52 Week High Date12/14/23- 52 Week Low143.90- 52 Week Low Date03/02/23Key Stats- Market Cap2.861T- Shares Out15.46B- 10 Day Average Volume57.33M- Dividend0.96- Dividend Yield0.52%- Beta1.31- YTD % Change-3.89KEY STATS- Open0.00- Day High0.00- Day Low0.00- Prev Close185.04- 52 Week High199.62- 52 Week High Date12/14/23- 52 Week Low143.90- 52 Week Low Date03/02/23- Market Cap2.861T- Shares Out15.46B- 10 Day Average Volume57.33M- Dividend0.96- Dividend Yield0.52%- Beta1.31- YTD % Change-3.89RATIOS/PROFITABILITY- EPS (TTM)6.43- P/E (TTM)28.79- Fwd P/E (NTM)28.54- EBITDA (TTM)130.109B- ROE (TTM)154.27%- Revenue (TTM)385.706B- Gross Margin (TTM)45.03%- Net Margin (TTM)26.16%- Debt To Equity (MRQ)145.80%EVENTS- Earnings Date05/02/2024(est)- Ex Div Date02/09/2024- Div Amount0.24- Split Date-- Split Factor-
 

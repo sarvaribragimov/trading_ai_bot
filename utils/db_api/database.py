@@ -715,6 +715,65 @@ class BarchartExpired:
         self.con.close()
 
 
+class Interval:
+    def __init__(self, name="intervals"):
+        self.name = name
+        self.con = sqlite3.connect('database.db')
+        self.cur = self.con.cursor()
+
+    async def create(self):
+        self.cur.execute(
+            f"""
+                create table if not exists {self.name}(
+                ticker text,
+                start_date text,
+                end_date text
+                )
+                    """)
+
+        self.con.commit()
+        self.con.close()
+    async def addinterval(self, ticker, start_date=None, end_date=None):
+        if not await self.search(ticker=ticker):
+            self.cur.execute(
+                f"""
+                insert into {self.name} values(
+                    ?, ?, ?
+                )
+            """, (ticker, start_date, end_date))
+        else:
+            self.cur.execute(
+                f"""
+                    update  {self.name}
+                        set  start_date=?, end_date=? where ticker=?  
+                """, (start_date, end_date, ticker))
+        self.con.commit()
+        self.con.close()
+
+    async def search(self, ticker=None, all=None):
+        if all:
+            response = self.cur.execute(
+                f"""
+                       select * from {self.name}
+                   """).fetchall()
+            return response
+        elif ticker:
+            response = self.cur.execute(
+                f"""
+                select * from {self.name} where ticker=?
+            """, (ticker, )).fetchall()
+            if response:
+                return response[0]
+            return False
+        else:
+            return None
+
+    async def drop(self):
+        self.cur.execute(f'''
+                                       DROP TABLE if exists {self.name}
+                               ''')
+        print(f"Drop {self.name} table")
+
 async def setup_tables():
     await UsersTable().create()
     await ExtraTable().create()
@@ -725,3 +784,4 @@ async def setup_tables():
     await SignalsTable().create()
     await BarchartTokenTable().create()
     await BarchartExpired().create()
+    await Interval().create()
