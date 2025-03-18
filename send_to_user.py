@@ -2,7 +2,7 @@ import asyncio
 
 from beatifulsoup import get_column_inner_data
 from data.get_company_info import get_stock_info
-from data.utils import getbarcharttableinfo
+from data.utils import getbarcharttableinfo, get_openai_question
 from utils.db_api import database
 from bot import dp
 from chatgpt import openai
@@ -18,10 +18,12 @@ async def send_to_user(ticker, algorithm,date,day):
             barchart = await getbarcharttableinfo(ticker)
             if '401' in barchart:
                 print('401')
+                await bot.send_message(chat_id='523886206', text=f"Token eskirdi")
                 await database.BarchartExpired().add_token(status='INACTIVE')
             else:
                 co = await get_column_inner_data(ticker)
-                questions = str(co) + str(barchart)
+                q = get_openai_question()
+                questions = str(q) + str(co) + str(barchart)
                 print(questions)
                 ai_response = await openai(questions)
                 if ai_response:

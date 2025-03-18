@@ -1,15 +1,6 @@
 from utils.db_api import database
-
-
-def insider_text(trans,volume):
-    text = ("Insayderlar savdosi: Ushbu malumotlarga asoslanib Insayderlar savdosi haqida fikr bildir, yaqinda sotib chiqib ketgan bolsa bu yomon, "
-            "yaqinda sotib olgan ammo, insayder sotib olgan narxida 10% dan ko`p yurvorgan bolsa bu yomon, "
-            f"yaqindagini insayderi sotib olgan bolsa $500,000 dan koproq summaga bu ijobiy, agar qancha summa katta bolsa shuncha yaxshi {trans}"
-            f"Optionlar qiymati: hafta oxirigacha bolgan optionlar orasidan qaysi narxda eng kop Call option borligini aniqla sababi ,"
-            f"eng kop call option bor narxgacha aksiya harakat qiladi  {volume}  (market Value qiymatini Shares held ga bo`lvorsak average price kelib chiqadi . "
-            f"Quarterly changes in shares degan joyida qizil minus tursa sotvorgan degani, yashil plus tursa sotib olgan degani."
-            f"ATR qiyamti 1 oylik ortacha yurish qiymati 10% ni tashkil qiladi, hozir esa aksiya 5% yurgan, buy yana 5%lik potensial borligini korsatadi")
-    return text
+from datetime import datetime
+import pytz
 
 def investment_text(insider,invest):
     text = (f"{insider}  investment: {invest} ")
@@ -17,16 +8,9 @@ def investment_text(insider,invest):
 
 
 def alltext(ticker,comp_info,market_value,market_task,invest,insider):
-    text = (f"kompaniya malumotlari: {market_value} {market_task}"
-            f", Quyidagi yangiliklarni o`rganib chiq va ular orasidan  kompaniya uchun  ijobiy✅ yoki salbiy🚫"
-            f" asos ekanligini xulosa chiqar. Javobni quyidagi korinishda taqdim qil: 2.	Yangiliklari🚫"
-            f"•	Taiwan Semiconductor, Apple, Nvidia va AMD’ning kengayish rejalari — ✅ Ijobiy"
-            f"•	AQSh fond bozori Trampning tariflari sababli tushib ketdi — 🚫 Salbiy"
-            f"•	AQShning Kanada, Meksika va Xitoyga tariflari kuchga kirishi — 🚫 Salbiy"
-            f"kompaniya so'ngi yangiliklarini senga taqdim qildim taxlil qilib ber mana => :{comp_info}"
-            f"Intutsional transaction ichidan aksiyalar sonini  ijobiy  va salbiyga kopaytirgan kompaniyalar  umumiy summasini har biri uchun alohida aniqla va  eng katta  summa ijobiyga yoki salbiyga kopayganligini aniqla. N/A bolganlarni hiisobdan chiqar. Ushbu savdolar umumiy qiymatidan kelib chiqib  ijobiy✅ yoki salbiy🚫 asos ekanligini xulosa chiqar."
-            f" Javobni quyidagi korinishda taqdim qil 3	Instutsinal investorlar savdosi✅ Savdoga kirgan: $693.10M Sovdodan chiqqan: $296.52M Eng katta o‘zgarish: "
-            f"Ijobiy tarafda — Employees Retirement System of Texas $536.62M . Instutsional transaction:{invest},\n"
+    text = (f"${ticker} {market_value} {market_task}"
+            f"kompaniya so'ngi yangiliklarini:{comp_info}"
+            f"Instutsional transaction:{invest}\n"
             f"insider lar savdosi {insider}")
     return text
 
@@ -160,13 +144,7 @@ async def getbarcharttableinfo(ticker):
             result_text = ""
             longputvolume = long_put_volume(ticker, cookie, data['token'])
             if '401' not in longputvolume:
-                result_text += (f"\n Quyidagi option malumotlariga asoslanib  optionlar soni va narxini xisoblab eng kop summa kiritilgan  2ta put va 2ta call option uchun strike narxlarini aniqla va  yaxshi holatda aynan "
-                                f"qaysi narxgacha kotarilishi mumkin yoki yomon  holatda aynan qaysi narxgacha tushib ketishi mumkin.  Put/call  nisbatini va sonini yaxlitlab solishtir va 0.5dan kichik qiymati biz uchun yaxshi ekanligini hisobga ol.  ijobiy✅  yoki salbiy🚫 asos ekanligini xulosa chiqar va "
-                                f"Javobni quyidagi korinishda taqdim qil: \n "
-                                f"5 Option xulosa: 🚫 narx yomon holatda 03/07gacha $115gacha tushib ketishi Yaxshi holatda $120ga ko`tarilib berishi mumkin "
-                                f"Put narx tushishiga: •	$115.00 strike: $445 × 123,217 = $54,931,565 🛑 ENG KATTA PUT •	$120.00 strike: $765 × 63,336 = $48,455,040 Call narx ko‘tarilishiga:"
-                                f"•	$120.00 strike: $163 × 148,242 = $24,156,446 🟢 ENG KATTA CALL •	$125.00 strike: $69 × 121,363 = $8,373,047 "
-                                f"Put/Call ratio: 1M put/1,4M call, 0.74 (0.5 dan katta) \n {long_put_volume_text(longputvolume)}\n ")
+                result_text += long_put_volume_text(longputvolume)
             else:
                 result_text += "\n⚠️ Long Put Volume: 401 Unauthorized\n"
             longcallvolume = long_call_volume(ticker, cookie, data['token'])
@@ -180,3 +158,32 @@ async def getbarcharttableinfo(ticker):
             return result_text.strip()
     except Exception as e:
         print('barchart table info error',e)
+
+def get_openai_question(lang='uz'):
+    if lang == 'uz':
+        text = ("sen bilan kompaniylarni kelgusida yurishi haqida prognozlar qilamiz, men malumot aytaman sen "
+                "esa xulosa qiberishing kerak boladi,    fundamental holati, optionlar holati yangiliklari insayderlar "
+                "va instutsional investorlar savdolariga asoslanib sotib olish kerakmi yoki sotish kerakmi, "
+                "sotib olish kerak bolsa qaysi narxgacha yurib berishi mumkinligi haqida xulosa bergin. "
+                "javoblar ozbek tilida bolsin. quyida malumotlar:")
+    elif lang == 'en':
+        text = ("We will make forecasts about the future performance of companies with you, I will give you information"
+                " and you will have to draw conclusions, based on the fundamental situation,"
+                " the news of the options situation, the trading of insiders and institutional investors,"
+                " whether to buy or sell, and if you should buy, at what price it can go. Answers should be in English."
+                "Below is the information:")
+    else:
+        text = ("Мы будем делать с вами прогнозы относительно будущих результатов деятельности компаний, "
+                "я предоставлю информацию, а вам нужно будет сделать выводы, исходя из фундаментальной ситуации,"
+                " новостей о ситуации на рынке опционов, торговли инсайдеров и институциональных инвесторов,"
+                " покупать или продавать, и если да, то по какой цене это может произойти. Пусть ответы будут на "
+                "русском языке. информация ниже:")
+    return text
+
+
+
+def get_tashkent_time():
+    tashkent_tz = pytz.timezone("Asia/Tashkent")
+    return datetime.now(tashkent_tz).time()  # Hozirgi Toshkent vaqti
+
+

@@ -8,7 +8,7 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 from beatifulsoup import get_column_inner_data
 from chatgpt import openai
 from data.get_company_info import insider_ransaction, get_stock_info
-from data.utils import getbarcharttableinfo
+from data.utils import getbarcharttableinfo, get_openai_question
 from loader import dp
 from handlers.users import functions as funcs
 from aiogram.dispatcher import FSMContext
@@ -112,7 +112,8 @@ async def bot_start(message: types.Message, state: FSMContext):
 		else:
 			print('200')
 			co = await get_column_inner_data(ticker)
-			questions = str(co) + str(barchart)
+			q = get_openai_question(lang)
+			questions = str(q) + str(co) + str(barchart)
 			print(questions)
 			ai_response = await openai(questions)
 			web = Setup(ticker=str(ticker))

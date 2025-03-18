@@ -7,7 +7,9 @@ import time
 from datetime import datetime
 from email.header import decode_header
 from data import config
+from data.utils import get_tashkent_time
 from send_to_user import send_to_user
+from utils.db_api import database
 
 # IMAP sozlamalari
 IMAP_SERVER = "imap.gmail.com"
@@ -24,27 +26,45 @@ async def process_email(msg):
     print('subject ===',subject,'frommm', from_)
     if config.sender_email in str(from_):
         message = str(subject).strip()
+        now = get_tashkent_time()
         if "Alert: New symbol:" in message:
             ticker, all_algorithm = message.replace("Alert: New symbol:", "").replace("was added to", "%%").split("%%")
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
             date_match = re.search(r"Date:\s+(.+)", message)
             date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
-            print('send_to_user.........')
+            print('send_to_user.........|',ticker,'|',match.group(1).strip())
             matches = re.search(r"(?:was added to|were added to)\s+(.+)", message)
             algorithm_day = matches.group(1) if matches else "Unknown"
-            await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date,day=algorithm_day)
+            get = await database.Interval().search(match.group(1).strip())
+            if get:
+                start_time = datetime.strptime(get[1], "%H:%M").time()
+                end_time = datetime.strptime(get[2], "%H:%M").time()
+                if now >= start_time and now <= end_time:
+                    await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date, day=algorithm_day)
+            else:
+                await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date,day=algorithm_day)
         else:
             tickers, algorithm = message.replace("Alert: New symbols:", "").replace("were added to", "%%").split("%%")
             tickers = [t.strip() for t in tickers.split(",")]
             match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
-            print('send_to_user.........', match)
+            print('send_to_user.........',match.group(1).strip())
             matches = re.search(r"(?:was added to|were added to)\s+(.+)", message)
             algoritm_day = matches.group(1) if matches else "Unknown"
             date_match = re.search(r"Date:\s+(.+)", message)
             date = date_match.group(2) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
-            if tickers:
-                for ticker in tickers:
-                    await send_to_user(ticker=str(ticker),algorithm=str(match.group(1)),date=str(date),day=algoritm_day)
+            get = await database.Interval().search(match.group(1).strip())
+            if get:
+                start_time = datetime.strptime(get[1], "%H:%M").time()
+                end_time = datetime.strptime(get[2], "%H:%M").time()
+                if now >= start_time and now <= end_time:
+                    if tickers:
+                        for ticker in tickers:
+                            await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=str(date),
+                                               day=algoritm_day)
+            else:
+                if tickers:
+                    for ticker in tickers:
+                        await send_to_user(ticker=str(ticker),algorithm=str(match.group(1)),date=str(date),day=algoritm_day)
 
 
 async def send_mail():

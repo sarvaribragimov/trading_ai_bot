@@ -45,7 +45,7 @@ class Setup:
         self.check_offer_win()
 
         try:
-            price_element = WebDriverWait(self.driver, 1).until(
+            price_element = WebDriverWait(self.driver, 3).until(
                 EC.presence_of_element_located(
                     (By.XPATH, "//div[contains(@class, 'container-qWcO4bp9')]")
                 )
