@@ -81,7 +81,7 @@ async def func(message: types.Message, state: FSMContext):
     elif message.text == sections[7]:
         await User.create_lessons.set()
         await message.answer(text='message_id kiriting👇')
-        print('Admin panel section darslar6')
+
     elif message.text == sections[8]:
         signals_type = config.signals_type
         await User.signals.set()
@@ -114,7 +114,6 @@ async def func(message: types.Message, state: FSMContext):
 async def func(call: types.CallbackQuery, state: FSMContext):
     _user_data = await state.get_data()
     id = call.from_user.id
-    print('admin section darsl')
     data = call.data
     start_hour, start_minute = _user_data['start_hour'], _user_data['start_minute']
     if data.split()[0] == 'h':
@@ -162,7 +161,6 @@ async def func(call: types.CallbackQuery, state: FSMContext):
 async def insert_lessons(message: types.Message, state: FSMContext):
     try:
         text = message.text
-        print('text ',text)
         await state.update_data(message_id=text)
         await message.answer(text="Dars nomini kiriting")
         await User.waiting_for_name.set()
@@ -373,7 +371,6 @@ from aiogram.utils.exceptions import TelegramAPIError
 async def poc_callback_but(call: types.CallbackQuery,  state: FSMContext):
     user_data = await state.get_data()
     lang = user_data['lang']
-    print('call',call.from_user.id)
     c = call.data[7:]
     db = database.LessonsTable()
     lessons = await db.get_lessons(message_id=int(c))

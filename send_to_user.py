@@ -17,14 +17,15 @@ async def send_to_user(ticker, algorithm,date,day):
             ticker = ticker.strip()
             barchart = await getbarcharttableinfo(ticker)
             if '401' in barchart:
-                print('401')
+
                 await bot.send_message(chat_id='523886206', text=f"Token eskirdi")
+                await bot.send_message(chat_id='6866199714', text=f"Token eskirdi")
                 await database.BarchartExpired().add_token(status='INACTIVE')
             else:
                 co = await get_column_inner_data(ticker)
                 q = get_openai_question()
                 questions = str(q) + str(co) + str(barchart)
-                print(questions)
+
                 ai_response = await openai(questions)
                 if ai_response:
                     if isinstance(ai_response, dict):
@@ -70,7 +71,7 @@ async def send_to_user_one(ticker, algorithm,date):
         ticker = ticker.strip()
         questions=(f'{ticker}  kompaniyasini tahlil qilib ber hozir savdoga kirsam boladimi hafta oxirigacha qaysi '
                    f'narxga kotarilib berishi mumkin. javobing 1000 ta belgidan oshmasin')
-        print(questions)
+
         ai_response = await openai(questions)
         if ai_response:
             if isinstance(ai_response, dict):

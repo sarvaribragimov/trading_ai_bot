@@ -101,22 +101,21 @@ async def bot_start(message: types.Message, state: FSMContext):
 	ticker = str(message.text[1:])
 	await message.answer(text='❇️Javobingiz tayyorlanmoqda iltimos kuting ...')
 	res = await database.BarchartExpired().get_max_token()
-	print('res',res)
+
 	if res:
 		if res['status'] == 'ACTIVE':
 			barchart = await getbarcharttableinfo(ticker)
 			if '401' in barchart:
-				print('401')
+
 				await dp.bot.send_message(chat_id='523886206',text="token expired")
+				await dp.bot.send_message(chat_id='6866199714',text="token expired")
 				await database.BarchartExpired().add_token(status='INACTIVE')
 				await message.answer(texts.choose(), reply_markup=menu_markup(lang))
 				await User.menu.set()
 			else:
-				print('200')
 				co = await get_column_inner_data(ticker)
 				q = get_openai_question(lang)
 				questions = str(q) + str(co) + str(barchart)
-				print(questions)
 				ai_response = await openai(questions)
 				web = Setup(ticker=str(ticker))
 				web.init()
@@ -131,7 +130,6 @@ async def bot_start(message: types.Message, state: FSMContext):
 					else:
 						await dp.bot.send_message(chat_id=message.chat.id, photo=photo,text=f"{text} {ai_response}")
 				await message.answer(texts.choose(), reply_markup=menu_markup(lang))
-				print('end')
 				await User.menu.set()
 		else:
 			await message.answer(text="iltimos keyinroq urinib ko'ring")
@@ -143,7 +141,7 @@ async def bot_start(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=['text'], state=User.choose_question)
 async def bot_start(message: types.Message, state: FSMContext):
-	print('message handler 4')
+
 	_user_data = await state.get_data()
 	lang = _user_data['lang']
 	texts = config.Texts(lang)
@@ -188,7 +186,7 @@ async def bot_start(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=['text'], state=User.premium, chat_type=types.ChatType.PRIVATE)
 async def bot_start(message: types.Message, state: FSMContext):
-	print('message handler 5')
+
 	id = message.from_user.id
 	_user_data = await state.get_data()
 	lang = _user_data['lang']
