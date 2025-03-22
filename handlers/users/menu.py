@@ -101,36 +101,45 @@ async def bot_start(message: types.Message, state: FSMContext):
 	ticker = str(message.text[1:])
 	await message.answer(text='❇️Javobingiz tayyorlanmoqda iltimos kuting ...')
 	res = await database.BarchartExpired().get_max_token()
-	if res['status'] == 'ACTIVE':
-		barchart = await getbarcharttableinfo(ticker)
-		if '401' in barchart:
-			print('401')
-			await dp.bot.send_message(chat_id='523886206')
-			await database.BarchartExpired().add_token(status='INACTIVE')
-			await message.answer(texts.choose(), reply_markup=menu_markup(lang))
-			await User.menu.set()
+	print('res',res)
+	if res:
+		if res['status'] == 'ACTIVE':
+			barchart = await getbarcharttableinfo(ticker)
+			if '401' in barchart:
+				print('401')
+				await dp.bot.send_message(chat_id='523886206',text="token expired")
+				await database.BarchartExpired().add_token(status='INACTIVE')
+				await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+				await User.menu.set()
+			else:
+				print('200')
+				co = await get_column_inner_data(ticker)
+				q = get_openai_question(lang)
+				questions = str(q) + str(co) + str(barchart)
+				print(questions)
+				ai_response = await openai(questions)
+				web = Setup(ticker=str(ticker))
+				web.init()
+				path, price = web.screenshot()
+				web.close_browser()
+				text = f"<b>Aksiya tikeri:</b> {ticker}\n<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
+					   f"<b>Narxi:</b> {price[6:]}\n"
+				with open(path, 'rb') as photo:
+					if len(text) + len(ai_response) > 1000:
+						await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)
+						await dp.bot.send_message(chat_id=message.chat.id, text=f"<b>Taxlil</b> {ticker}\n {ai_response}")
+					else:
+						await dp.bot.send_message(chat_id=message.chat.id, photo=photo,text=f"{text} {ai_response}")
+				await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+				print('end')
+				await User.menu.set()
 		else:
-			print('200')
-			co = await get_column_inner_data(ticker)
-			q = get_openai_question(lang)
-			questions = str(q) + str(co) + str(barchart)
-			print(questions)
-			ai_response = await openai(questions)
-			web = Setup(ticker=str(ticker))
-			web.init()
-			path, price = web.screenshot()
-			web.close_browser()
-			text = f"<b>Aksiya tikeri:</b> {ticker}\n<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
-				   f"<b>Narxi:</b> {price[6:]}\n"
-			with open(path, 'rb') as photo:
-				if len(text) + len(ai_response) > 1000:
-					await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)
-					await dp.bot.send_message(chat_id=message.chat.id, text=f"<b>Taxlil</b> {ticker}\n {ai_response}")
-				else:
-					await dp.bot.send_message(chat_id=message.chat.id, photo=photo,text=f"{text} {ai_response}")
-			await message.answer(texts.choose(), reply_markup=menu_markup(lang))
+			await message.answer(text="iltimos keyinroq urinib ko'ring")
 			await User.menu.set()
 
+	else:
+		await message.answer(text="iltimos keyinroq urinib ko'ring")
+		await User.menu.set()
 
 @dp.message_handler(content_types=['text'], state=User.choose_question)
 async def bot_start(message: types.Message, state: FSMContext):
