@@ -18,7 +18,6 @@ async def send_to_user(ticker, algorithm,date,day):
                 ticker = ticker.strip()
                 barchart = await getbarcharttableinfo(ticker)
                 if '401' in barchart:
-
                     await bot.send_message(chat_id='523886206', text=f"Token eskirdi")
                     await bot.send_message(chat_id='6866199714', text=f"Token eskirdi")
                     await database.BarchartExpired().add_token(status='INACTIVE')
@@ -26,42 +25,46 @@ async def send_to_user(ticker, algorithm,date,day):
                     co = await get_column_inner_data(ticker)
                     q = get_openai_question()
                     questions = str(q) + str(co) + str(barchart)
-
                     ai_response = await openai(questions)
-                    if ai_response:
-                        if isinstance(ai_response, dict):
-                            ai_response = str(ai_response)
-                        web = Setup(ticker=str(ticker))
-                        web.init()
-                        path, price = web.screenshot()
-                        web.close_browser()
-                        text = f"<b>Aksiya tikeri:</b> {ticker}\n" \
-                               f"<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
-                               f"<b>Narxi:</b> {price}\n" \
-                               f"<b>Algoritm nomi:</b> {day}\n" \
-                               f"<b>Kelgan vaqti:</b> {date}"
-                        with open(path, 'rb') as photo:
-                            message = await bot.send_photo(chat_id='523886206', photo=photo, caption=text)
-                            await bot.send_message(chat_id='523886206', text=f"{ticker} uchun taxlil\n {ai_response}")
-                            db = database.UsersTable()
-                            users = await db.search(all=True)
-                            count = 0
-                            photo_file_id = message.photo[-1].file_id
-                        for user in users:
-                            try:
-                                if photo_file_id:
-                                    if len(text) + len(ai_response)>1000:
-                                        await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=text)
-                                        await bot.send_message(chat_id=user[0], text=f"{ticker} uchun taxlil\n {ai_response}")
-                                    else:
-                                        await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=f"{text} \n {ai_response}")
-                                    await asyncio.sleep(0.1)
-                                count += 1
-                            except Exception as e:
-                                await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"Xatolik {user[0]} foydalanuvchiga xabar yuborishda: {e}")
-                        await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"{count} ta foydalanuvchiga xabar yuborildi!")
+                    if '401' in ai_response:
+                        await bot.send_message(chat_id='523886206', text=f"Chatgpt Token muddati tugadi")
+                        await bot.send_message(chat_id='6866199714', text=f"Chatgpt Token muddati tudadi")
+                        await database.BarchartExpired().add_token(status='INACTIVE')
                     else:
-                        await dp.bot.send_message(chat_id=SUPER_ADMIN, text='xabar yuborilmadi')
+                        if ai_response:
+                            if isinstance(ai_response, dict):
+                                ai_response = str(ai_response)
+                            web = Setup(ticker=str(ticker))
+                            web.init()
+                            path, price = web.screenshot()
+                            web.close_browser()
+                            text = f"<b>Aksiya tikeri:</b> {ticker}\n" \
+                                   f"<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
+                                   f"<b>Narxi:</b> {price}\n" \
+                                   f"<b>Algoritm nomi:</b> {day}\n" \
+                                   f"<b>Kelgan vaqti:</b> {date}"
+                            with open(path, 'rb') as photo:
+                                message = await bot.send_photo(chat_id='523886206', photo=photo, caption=text)
+                                await bot.send_message(chat_id='523886206', text=f"{ticker} uchun taxlil\n {ai_response}")
+                                db = database.UsersTable()
+                                users = await db.search(all=True)
+                                count = 0
+                                photo_file_id = message.photo[-1].file_id
+                            for user in users:
+                                try:
+                                    if photo_file_id:
+                                        if len(text) + len(ai_response)>1000:
+                                            await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=text)
+                                            await bot.send_message(chat_id=user[0], text=f"{ticker} uchun taxlil\n {ai_response}")
+                                        else:
+                                            await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=f"{text} \n {ai_response}")
+                                        await asyncio.sleep(0.1)
+                                    count += 1
+                                except Exception as e:
+                                    await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"Xatolik {user[0]} foydalanuvchiga xabar yuborishda: {e}")
+                            await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"{count} ta foydalanuvchiga xabar yuborildi!")
+                        else:
+                            await dp.bot.send_message(chat_id=SUPER_ADMIN, text='xabar yuborilmadi')
         else:
             await database.BarchartExpired().add_token(status='INACTIVE')
             await dp.bot.send_message(chat_id=SUPER_ADMIN, text='inactive saqlandi')

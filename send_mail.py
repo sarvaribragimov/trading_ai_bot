@@ -23,7 +23,6 @@ async def process_email(msg):
     subject, _ = decode_header(msg["Subject"])[0]
     from_, _ = decode_header(msg.get("From"))[0]
     date, _ = decode_header(msg.get("Date"))[0]
-    print('subject ===',subject,'frommm', from_)
     if config.sender_email in str(from_):
         message = str(subject).strip()
         now = get_tashkent_time()

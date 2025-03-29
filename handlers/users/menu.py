@@ -106,7 +106,6 @@ async def bot_start(message: types.Message, state: FSMContext):
 		if res['status'] == 'ACTIVE':
 			barchart = await getbarcharttableinfo(ticker)
 			if '401' in barchart:
-
 				await dp.bot.send_message(chat_id='523886206',text="token expired")
 				await dp.bot.send_message(chat_id='6866199714',text="token expired")
 				await database.BarchartExpired().add_token(status='INACTIVE')
@@ -134,7 +133,6 @@ async def bot_start(message: types.Message, state: FSMContext):
 		else:
 			await message.answer(text="iltimos keyinroq urinib ko'ring")
 			await User.menu.set()
-
 	else:
 		await message.answer(text="iltimos keyinroq urinib ko'ring")
 		await User.menu.set()

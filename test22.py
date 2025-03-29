@@ -2,6 +2,8 @@ import asyncio
 import json
 
 from data.utils import get_tashkent_time
+from chatgpt import openai
+
 
 # from chatgpt import openai
 # from beatifulsoup import get_column_inner_data
@@ -61,5 +63,9 @@ from data.utils import get_tashkent_time
 #     print(questions)
 # asyncio.run(main('coin'))
 
+async def main():
+    ai_response = await openai('salom')
+    print(ai_response)
+asyncio.run(main())
 
 

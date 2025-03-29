@@ -11,7 +11,7 @@ async def openai(question):
           api_key=CHATGPT_API_KEY
         )
         response = client.chat.completions.create(
-          model="gpt-4o",
+          model="gpt-4o-mini",
           store=True,
           messages=[
             {"role": "user", "content": question}
