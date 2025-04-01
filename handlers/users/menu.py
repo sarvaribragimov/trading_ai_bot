@@ -101,7 +101,6 @@ async def bot_start(message: types.Message, state: FSMContext):
 	ticker = str(message.text[1:])
 	await message.answer(text='❇️Javobingiz tayyorlanmoqda iltimos kuting ...')
 	res = await database.BarchartExpired().get_max_token()
-
 	if res:
 		if res['status'] == 'ACTIVE':
 			barchart = await getbarcharttableinfo(ticker)
