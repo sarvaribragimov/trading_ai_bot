@@ -50,19 +50,23 @@ async def send_to_user(ticker, algorithm,date,day):
                                 users = await db.search(all=True)
                                 count = 0
                                 photo_file_id = message.photo[-1].file_id
-                            for user in users:
                                 try:
-                                    if photo_file_id:
-                                        if len(text) + len(ai_response)>1000:
-                                            await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=text)
-                                            await bot.send_message(chat_id=user[0], text=f"{ticker} uchun taxlil\n {ai_response}")
-                                        else:
-                                            await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=f"{text} \n {ai_response}")
-                                        await asyncio.sleep(0.1)
-                                    count += 1
+                                    if users:
+                                        for user in users:
+                                            try:
+                                                if photo_file_id:
+                                                    if len(text) + len(ai_response)>1000:
+                                                        await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=text)
+                                                        await bot.send_message(chat_id=user[0], text=f"{ticker} uchun taxlil\n {ai_response}")
+                                                    else:
+                                                        await bot.send_photo(chat_id=user[0], photo=photo_file_id,caption=f"{text} \n {ai_response}")
+                                                    await asyncio.sleep(0.1)
+                                                count += 1
+                                            except Exception as e:
+                                                await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"Xatolik {user[0]} foydalanuvchiga xabar yuborishda: {e}")
+                                        await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"{count} ta foydalanuvchiga xabar yuborildi!")
                                 except Exception as e:
-                                    await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"Xatolik {user[0]} foydalanuvchiga xabar yuborishda: {e}")
-                            await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"{count} ta foydalanuvchiga xabar yuborildi!")
+                                    await dp.bot.send_message(chat_id=SUPER_ADMIN,text=f"users error {e}")
                         else:
                             await dp.bot.send_message(chat_id=SUPER_ADMIN, text='xabar yuborilmadi')
         else:
