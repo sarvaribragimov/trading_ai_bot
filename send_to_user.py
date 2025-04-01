@@ -16,6 +16,7 @@ async def send_to_user(ticker, algorithm,date,day):
         if res:
             if res['status'] == 'ACTIVE':
                 ticker = ticker.strip()
+                print('||',ticker,'||s')
                 barchart = await getbarcharttableinfo(ticker)
                 if '401' in barchart:
                     await bot.send_message(chat_id='523886206', text=f"Token eskirdi")
