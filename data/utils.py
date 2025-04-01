@@ -140,7 +140,7 @@ async def getbarcharttableinfo(ticker):
         db = database.BarchartTokenTable()
         data = await db.search_by_status(status='TOKEN')
         if data:
-            cookie = data['cookie'] + data['cookie2']
+            cookie = data['cookie'] + data['cookie2'] + data['cookie3']
             result_text = ""
             longputvolume = long_put_volume(ticker, cookie, data['token'])
             if '401' not in longputvolume:

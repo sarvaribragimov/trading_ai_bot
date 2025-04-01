@@ -16,7 +16,7 @@ images = "images"
 main_folder = os.path.join(current_dir, images)
 if not images in files:
     os.mkdir(main_folder)
-print(main_folder)
+
 
 class Setup:
     def __init__(self, ticker="AAPL"):
