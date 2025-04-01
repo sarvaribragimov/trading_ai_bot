@@ -1,14 +1,9 @@
-# Databases
-database.db
-
-
+users.db
 # Byte-compiled / optimized / DLL files
-logs/
-.idea
 __pycache__/
 *.py[cod]
 *$py.class
-
+images/
 # C extensions
 *.so
 

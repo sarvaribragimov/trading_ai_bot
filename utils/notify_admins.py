@@ -1,10 +1,13 @@
 import logging
+
 from aiogram import Dispatcher
-from data.config import SUPER_ADMIN
+
+from data.config import ADMINS
 
 
 async def on_startup_notify(dp: Dispatcher):
-    try:
-        await dp.bot.send_message(SUPER_ADMIN, "🤖Bot is running...🚀")
-    except Exception as err:
-        logging.exception(err)
+        try:
+            await dp.bot.send_message(523886206, "Bot ishga tushdi")
+
+        except Exception as err:
+            logging.exception(err)

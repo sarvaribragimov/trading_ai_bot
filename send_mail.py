@@ -1,87 +1,45 @@
-import imaplib
-import email
-import asyncio
-import re
-import pytz
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import time
-from datetime import datetime
-from email.header import decode_header
-from data import config
-from data.utils import get_tashkent_time
-from send_to_user import send_to_user
-from utils.db_api import database
 
-# IMAP sozlamalari
-IMAP_SERVER = "imap.gmail.com"
-IMAP_PORT = 993
-IMAP_USERNAME = config.imap_username
-IMAP_PASSWORD = config.imap_password
+# SMTP settings
+smtp_server = 'smtp.gmail.com'  # Replace with the SMTP server of your email provider
+smtp_port = 587  # Use the appropriate port (e.g., 587 for TLS, 465 for SSL)
+smtp_username = 'deeorbeckbus@gmail.com'
+smtp_password = 'awwqaqfcvpuxdxnu'
 
+# Email content
+sender_email = 'deeorbeckbus@gmail.com'
+receiver_email = 'deeorback@gmail.com'
+subject = 'AAPL, AAPL aksiyasi sotildi'
+message = """What is Lorem Ipsum?
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."""
 
-async def process_email(msg):
-    """Emailni o'qib, Telegramga yuborish"""
-    subject, _ = decode_header(msg["Subject"])[0]
-    from_, _ = decode_header(msg.get("From"))[0]
-    date, _ = decode_header(msg.get("Date"))[0]
-    if config.sender_email in str(from_):
-        message = str(subject).strip()
-        now = get_tashkent_time()
-        if "Alert: New symbol:" in message:
-            ticker, all_algorithm = message.replace("Alert: New symbol:", "").replace("was added to", "%%").split("%%")
-            match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
-            date_match = re.search(r"Date:\s+(.+)", message)
-            date = date_match.group(1) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
-            print('send_to_user.........|',ticker,'|',match.group(1).strip())
-            matches = re.search(r"(?:was added to|were added to)\s+(.+)", message)
-            algorithm_day = matches.group(1) if matches else "Unknown"
-            get = await database.Interval().search(match.group(1).strip())
-            if get:
-                start_time = datetime.strptime(get[1], "%H:%M").time()
-                end_time = datetime.strptime(get[2], "%H:%M").time()
-                if now >= start_time and now <= end_time:
-                    await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date, day=algorithm_day)
-            else:
-                await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=date,day=algorithm_day)
-        else:
-            tickers, algorithm = message.replace("Alert: New symbols:", "").replace("were added to", "%%").split("%%")
-            tickers = [t.strip() for t in tickers.split(",")]
-            match = re.search(r"(?:was added to|were added to)\s+(\S+)", message)
-            print('send_to_user.........',match.group(1).strip())
-            matches = re.search(r"(?:was added to|were added to)\s+(.+)", message)
-            algoritm_day = matches.group(1) if matches else "Unknown"
-            date_match = re.search(r"Date:\s+(.+)", message)
-            date = date_match.group(2) if date_match else datetime.now().strftime("%a, %d %b %Y %H:%M:%S %z")
-            get = await database.Interval().search(match.group(1).strip())
-            if get:
-                start_time = datetime.strptime(get[1], "%H:%M").time()
-                end_time = datetime.strptime(get[2], "%H:%M").time()
-                if now >= start_time and now <= end_time:
-                    if tickers:
-                        for ticker in tickers:
-                            await send_to_user(ticker=str(ticker), algorithm=str(match.group(1)), date=str(date),
-                                               day=algoritm_day)
-            else:
-                if tickers:
-                    for ticker in tickers:
-                        await send_to_user(ticker=str(ticker),algorithm=str(match.group(1)),date=str(date),day=algoritm_day)
+# Create a MIME message
+msg = MIMEMultipart()
+msg['From'] = sender_email
+msg['To'] = receiver_email
+msg['Subject'] = subject
 
+# Attach the email message
+msg.attach(MIMEText(message, 'plain'))
 
-async def send_mail():
-    """Har 5 soniyada pochtani tekshirib, yangi xabarlarni yuboradi"""
-    while True:
-        try:
-            imap = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
-            imap.login(IMAP_USERNAME, IMAP_PASSWORD)
-            imap.select("inbox")
-            status, email_ids = imap.search(None, 'UNSEEN FROM "alerts@thinkorswim.com"')
-            for email_id in email_ids[0].split():
-                status, email_data = imap.fetch(email_id, "(RFC822)")
-                raw_email = email_data[0][1]
-                msg = email.message_from_bytes(raw_email)
-                await process_email(msg)
-            await asyncio.sleep(2)
-            imap.close()
-            imap.logout()
-        except Exception as e:
-            print(f"IMAP xatosi: {e}")
-        await asyncio.sleep(5)
+# Connect to the SMTP server
+while True:
+
+    try:
+        smtp = smtplib.SMTP(smtp_server, smtp_port)
+        smtp.starttls()  # Use TLS encryption (comment out if using SSL)
+        smtp.login(smtp_username, smtp_password)
+
+        # Send the email
+        smtp.sendmail(sender_email, receiver_email, msg.as_string())
+
+        print('Email sent successfully!')
+    except Exception as e:
+        print(f'Error: {str(e)}')
+    finally:
+        smtp.quit()  # Close the SMTP connection
+
+    time.sleep(1)

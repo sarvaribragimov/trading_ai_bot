@@ -1,123 +1,157 @@
 import imaplib
 import email
-import re
-from email.utils import parsedate_to_datetime
-
-import pytz
-
+from email.header import decode_header
+import time
 from data import config
-from gemini import generate
-from screnshot import Setup
-from loader import dp
-from data.config import *
+from utils.db_api.database import DataBaseSql
+from loader import bot
+import asyncio
+from drawer import Setup
+from aiogram import types
+from aiogram.types import InputMediaPhoto
+from datetime import datetime
+import pytz
+import re
 
+
+
+
+async def copy_media_group(chat_id, message):
+    # Get the media group from the original message
+    original_media_group = message
+
+    # Create a copy of the media group
+    copied_media_group = types.MediaGroup()
+
+    # Iterate through the media in the original group and add them to the copy
+    for media in original_media_group:
+        if isinstance(media, InputMediaPhoto):
+            # If it's a photo, add it to the copy
+            copied_media_group.attach_photo(media.media)
+        # You can add more conditions for other types of media (e.g., InputMediaVideo)
+
+    # Send the copied media group to the same chat
+    await bot.send_media_group(chat_id=chat_id, media=copied_media_group)
+async def main(algorithm, date, tickers=None, ticker=None):
+    await bot.send_message(chat_id=config.main_user, text=f"Ticker(s): {ticker or tickers}\nAlgorithm: {algorithm}\nDate: {date}")
+    hour_minutes = date.split(',')[0]
+    parsed_date = datetime.strptime(hour_minutes, "%H:%M")
+    # interval = await Interval().search(
+    #     ticker=" ".join(algorithm.strip().lower().replace('.', '').split())
+    # )
+    # print(interval)
+    # if interval:
+    #     start_date = datetime.strptime(interval[1], "%H:%M")
+    #     end_date = datetime.strptime(interval[2], "%H:%M")
+    #     if not (start_date <= parsed_date and parsed_date <= end_date):
+    #         await bot.send_message(chat_id=config.main_user, text=f"O'tkazib yuborilgan: {algorithm}, {hour_minutes} da!")
+    #         return
+    if ticker:
+        web = Setup(ticker=ticker)
+        web.init()
+        path = web.screenshot()
+        web.close_browser()
+        text = f"Aksiya tikeri: {ticker}\n" \
+               f"Algoritm nomi: {algorithm}\n" \
+               f"Kelgan vaqti: {date}"
+        with open(path, 'rb') as photo:
+            message = await bot.send_photo(chat_id=config.main_user, photo=photo, caption=text)
+    else:
+        # try:
+        media_group = []
+        print(tickers)
+        for ticker in tickers:
+            ticker = ticker.strip()
+            web = Setup(ticker=ticker)
+            web.init()
+            path = web.screenshot()
+            print(path)
+            web.close_browser()
+            media_group.append(
+                types.InputMediaPhoto(media=open(path, 'rb')),
+            )
+        text = f"Aksiya tikerlari: {','.join(tickers)}\n" \
+               f"Algoritm nomi: {algorithm}\n" \
+               f"Kelgan vaqti: {date}"
+        message = await bot.send_media_group(chat_id=config.main_user, media=media_group)
+        await bot.edit_message_caption(chat_id=config.main_user, message_id=message[0].message_id, caption=text)
+
+    users = await DataBaseSql().search_user(all=True)
+    count = 0
+    for u in users:
+        try:
+            if tickers is None:
+                await bot.copy_message(chat_id=u[0], from_chat_id=config.main_user, message_id=message.message_id)
+            else:
+                photo_file_ids = [
+                    types.InputMediaPhoto(media=media_message.photo[-1].file_id) for media_message in message
+                ]
+                message = await bot.send_media_group(chat_id=u[0], media=photo_file_ids)
+                await bot.edit_message_caption(chat_id=u[0], message_id=message[0].message_id, caption=text)
+            count += 1
+        except:
+             pass
+
+# IMAP settings
 imap_server = 'imap.gmail.com'
 imap_port = 993
-imap_username = 'lapasovsardorbek2000@gmail.com'
-imap_password = 'xrberzvmmmovrnil'  # App Password
+imap_username = config.email
+imap_password = config.password
 
-async def connect_to_imap():
-    try:
-        print("Connecting to IMAP server...")
-        imap = imaplib.IMAP4_SSL(imap_server, imap_port)
-        imap.login(imap_username, imap_password)
-        print("Successfully connected and logged in!")
-        imap.select("inbox")
-        status, messages = imap.search(None, 'UNSEEN FROM "alerts@thinkorswim.com"')
-        mail_ids = messages[0].split()
-        if len(mail_ids) > 0:
-            latest_mail_id = mail_ids[0]
-            status, msg_data = imap.fetch(latest_mail_id, '(RFC822)')
-            for response_part in msg_data:
-                if isinstance(response_part, tuple):
-                    # Xabarni olish
-                    msg = email.message_from_bytes(response_part[1])
-                    date_header = msg["Date"]
-                    date_obj = parsedate_to_datetime(date_header)
+while True:
+    # Connect to the IMAP server
+    imap = imaplib.IMAP4_SSL(imap_server, imap_port)
+    imap.login(imap_username, imap_password)
 
-                    # Toshkent vaqtiga aylantirish
-                    tashkent_tz = pytz.timezone("Asia/Tashkent")
-                    date_tashkent = date_obj.astimezone(tashkent_tz)
-                    formatted_date = date_tashkent.strftime("%H:%M, %d-%b, %Y")
-                    print(f"Xabar vaqti (Toshkent): {formatted_date}")
-                    if msg.is_multipart():
-                        for part in msg.walk():
-                            content_type = part.get_content_type()
-                            if content_type == "text/plain":
-                                # Xabarni hech qanday o'zgarishsiz o'qish
-                                body = part.get_payload(decode=True).decode()
-                                # print("\nEmail Content:\n", body)
-                                # match = re.search(r"New symbol:\s*([A-Z]+)", body)
-                                match = re.search(r"New symbol:\s*([A-Z]+)", body)
-                                if match:
-                                    print('ifd')
-                                    ticker = match.group(1)
-                                    algorithm = match.group(2)
-                                    print(f"Ticker: {ticker}")
-                                    web = Setup(ticker=ticker)
-                                    web.init()
-                                    path,price = web.screenshot()
-                                    web.close_browser()
-                                    text = f"Aksiya tikeri: {ticker}\n" \
-                                           f"Narxi: {price}\n" \
-                                           f"Algoritm nomi: {algorithm}\n" \
-                                           f"Kelgan vaqti: {formatted_date}"
-                                    with open(path, 'rb') as photo:
-                                        message = await dp.bot.send_photo(chat_id=523886206, photo=photo, caption=text)
-                                else:
-                                    print("Ticker topilmadi.")
-                                break
+    imap.select('inbox')  # You can choose a different mailbox if needed
+    # Search for unread emails
+    status, email_ids = imap.search(None, f'(UNSEEN FROM "{config.sender_email}")')
+    # Iterate through email IDs and retrieve email content
+    for email_id in email_ids[0].split():
+        EMAIL_ID = email_id
+        status, email_data = imap.fetch(email_id, '(RFC822)')
+        raw_email = email_data[0][1]
 
-                    else:
-                        raw_email = email_data[0][1]
-                        msg = email.message_from_bytes(raw_email)
-                        # print('else')
-                        # body = msg.get_payload(decode=True).decode()
-                        # match = re.search(r"New symbols:\s*([A-Z]+)", body)
-                        # # match2 = re.search(r"were added to\s*([A-Z]+)", body)
-                        # print(match)
-                        # match2 = re.search(r"were added to\s*([A-Z]+)|was added to\s*([A-Z]+)", body)
-                        # if match2:
-                        #     ticker = match2.group(2)
-                        #     print(f"Tiker: {ticker}")
-                        # else:
-                        #     print("Ticker topilmadi. Body matnini tekshiring!")
-                        #
-                        # tickers = match.group(1).split(", ")
-                        # # algorithm = match2.group(1)
-                        # # print('Algoritm',algorithm)
-                        # print(match)
-                        # for ticker in tickers:
-                        #     print(f"Ticker: {ticker}")
-                        #     parts = await generate(quessions(ticker))
-                        #     print('parts',parts[0]['text'])
-                        #     web = Setup(ticker=ticker)
-                        #     web.init()
-                        #     path,price = web.screenshot()
-                        #     web.close_browser()
-                        #     text = (f"<b>Aksiya tikeri:</b> {ticker}\n"
-                        #             # f"<b>Algoritm nomi:</b> {algorithm}\n"
-                        #             f"<b>Narxi:</b> {price} \n"
-                        #             f"<b>Kelgan vaqti:</b> {formatted_date} \n"
-                        #             f"{parts[0]['text']}")
-                        #     with open(path, 'rb') as photo:
-                        #         message = await dp.bot.send_photo(chat_id=523886206, photo=photo, caption=text)
+        # Parse the raw email content
+        msg = email.message_from_bytes(raw_email)
+        # Get email headers (subject, from, date)
+        subject, _ = decode_header(msg["Subject"])[0]
+        from_, _ = decode_header(msg.get("From"))[0]
+        date, _ = decode_header(msg.get("Date"))[0]
 
+        print(f"Subject: {subject}")
+        print(f"From: {from_}")
+        print(f"Date: {date}\n")
+        try:
+            date_string_cleaned = re.sub(r'\([^)]*\)', '', date).strip()
+            # Convert the input date and time to a datetime object
+            dt_object = datetime.strptime(date_string_cleaned, "%a, %d %b %Y %H:%M:%S %z")
+
+
+            # Convert the datetime object to the target time zone (Uzbekistan Time)
+            uzbek_timezone = pytz.timezone('Asia/Tashkent')
+            converted_dt = dt_object.astimezone(uzbek_timezone)
+
+            # Format the converted datetime object
+            formatted_date = converted_dt.strftime("%H:%M, %d-%b, %Y")
+        except:formatted_date = date
+        print("\n__________________")
+
+
+        message = str(subject).strip()
+        if "Alert: New symbol:" in message:
+            ticker, algorithm = message.replace("Alert: New symbol:", '').replace("was added to", '%%').split("%%")
+            asyncio.run(main(algorithm, formatted_date, ticker=ticker))
         else:
-            print("No messages found from the specified sender.")
-        imap.logout()
-    except Exception as e:
-        print("Error:", e)
+            tickers, algorithm = message.replace("Alert: New symbols:", '').replace("were added to", '%%').replace("""were
+         added to""", "%%").split("%%")
+            tickers = tickers.split(',')
+            asyncio.run(main(algorithm, formatted_date, tickers=tickers))
+            continue
 
 
-def quessions(ticker):
-    text = (f"Quyidagi 5ta savol shablonini eslab qol, va aksiya tikeri jonatganimda  sen mana shu shablon asosida javob bergin. "
-        f"Savollarga aniq va qisqa javob bergin, javoblardagi umumiy belgilar soni 500 ta belgidan  oshmasin. "
-        f"1. “{ticker} ticker” kompaniya biznes faoliyati "
-        f"2. Bu hafta uchun “{ticker} Tiker” aksiyasi uchun put /call ratio qiymatini va qancha put va qancha call option borligini aniqla "
-        f"3. “{ticker} ticker” aksiyasi uchun bugungi holat boyicha aksiyaning qancha foiz qismi Short-Sale qilinganligini aniqla "
-        f"4. “{ticker} ticker” aksiyaga oid oxirgi 3 kun Ichida qandaydir xabar chiqdimi, xabar sarlavhasini korsat va ijobiy yoki salbiy xabar ekanligni aniqlab qisqa javob ber "
-        f"5. Yuqoridagi malumotlarga tayangan holda qisqa xulosangni ayt, ushbu kompaniya aksiyasini day trading uchun xarid qilsam boladimi yoki yoq?")
-    return text
+    time.sleep(10)
 
 
+# Close the IMAP connection
+imap.logout()
