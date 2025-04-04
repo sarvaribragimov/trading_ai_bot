@@ -45,17 +45,38 @@ class Setup:
             x_button[0].click()
         time.sleep(2)
 
+    # def screenshot(self):
+    #     ticker = self.ticker
+    #     self.filepath = os.path.join(main_folder, f"{ticker}.png")
+    #     self.driver.get('https://www.tradingview.com/chart/?symbol=' + ticker)
+    #     time.sleep(2)
+    #     self.check_offer_win()
+    #     chart = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[5]")
+    #     screenshot = chart.screenshot_as_png
+    #     image = Image.open(BytesIO(screenshot))
+    #     image.save(self.filepath)
+    #
+    #     return self.filepath
     def screenshot(self):
         ticker = self.ticker
         self.filepath = os.path.join(main_folder, f"{ticker}.png")
-        self.driver.get('https://www.tradingview.com/chart/?symbol=' + ticker)
-        time.sleep(2)
-        self.check_offer_win()
-        chart = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[5]")
-        screenshot = chart.screenshot_as_png
-        image = Image.open(BytesIO(screenshot))
-        image.save(self.filepath)
-
+        try:
+            print("Sahifaga kirilmoqda...")
+            self.driver.get('https://www.tradingview.com/chart/?symbol=' + ticker)
+            print("Chart elementi kutilmoqda...")
+            WebDriverWait(self.driver, 30).until(
+                EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div[5]"))
+            )
+            self.check_offer_win()
+            chart = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[5]")
+            print("Skrinshot olinmoqda...")
+            screenshot = chart.screenshot_as_png
+            image = Image.open(BytesIO(screenshot))
+            image.save(self.filepath)
+            print("Skrinshot saqlandi")
+        except Exception as e:
+            print(f"Xato: {e}")
+            raise
         return self.filepath
 
     def close_browser(self):
