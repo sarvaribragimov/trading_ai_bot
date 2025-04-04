@@ -77,6 +77,7 @@ class Setup:
             print("Skrinshot saqlandi")
         except Exception as e:
             print(f"Xato: {e}")
+            time.sleep(5)
             raise
         return self.filepath
 
