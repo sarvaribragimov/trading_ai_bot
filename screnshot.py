@@ -29,9 +29,10 @@ class Setup:
         temp_user_data_dir = tempfile.mkdtemp()
         self.driver = Driver(
             headless=config.production,
-            user_data_dir=temp_user_data_dir  # Unik direktoriya qo‘shish
+            user_data_dir=temp_user_data_dir,
+            port=4444
         )
-        self.driver.set_page_load_timeout(200)
+        self.driver.set_page_load_timeout(400)
         self.driver.set_window_size(1200, 800)
 
     def get_image_url(self):
