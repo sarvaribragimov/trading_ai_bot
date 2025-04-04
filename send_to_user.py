@@ -35,10 +35,13 @@ async def send_to_user(ticker, algorithm,date,day):
                         if ai_response:
                             if isinstance(ai_response, dict):
                                 ai_response = str(ai_response)
-                            web = Setup(ticker=str(ticker))
-                            web.init()
-                            path, price = web.screenshot()
-                            web.close_browser()
+                            try:
+                                web = Setup(ticker=str(ticker))
+                                web.init()
+                                path, price = web.screenshot()
+                                web.close_browser()
+                            except Exception as e:
+                                await bot.send_message(chat_id=SUPER_ADMIN, text=f'screnshot error: {e}')
                             text = f"<b>Aksiya tikeri:</b> {ticker}\n" \
                                    f"<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
                                    f"<b>Narxi:</b> {price}\n" \

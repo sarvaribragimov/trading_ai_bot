@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import httpx
 from data.get_company_info import extract_text_filter, companyinformation, findmarket, insider_ransaction, get_invest
 from data.utils import alltext
+from bot import dp
 
 
 async def get_column_inner_data(ticker: str):
@@ -28,6 +29,7 @@ async def get_column_inner_data(ticker: str):
         else:
             return f"get_column_inner_data error: {response.status_code}"
     except Exception as e:
+        await dp.bot.send_message(chat_id='523886206', text=f"get_column_inner_data error: {e}")
         return f"get_column_inner_data error: {e}"
 
 

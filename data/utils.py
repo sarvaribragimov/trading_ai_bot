@@ -1,6 +1,7 @@
 from utils.db_api import database
 from datetime import datetime
 import pytz
+from ..bot import dp
 
 def investment_text(insider,invest):
     text = (f"{insider}  investment: {invest} ")
@@ -157,7 +158,7 @@ async def getbarcharttableinfo(ticker):
                 result_text += f"\n📆 Options Expirations:\n{put_call_ratios_text(optionsexpirations)}\n"
             return result_text.strip()
     except Exception as e:
-        print('barchart table info error',e)
+        await dp.bot.send_message(chat_id='523886206', text=f'getbarcharttableinfo error {e}')
 
 def get_openai_question(lang='uz'):
     if lang == 'uz':
