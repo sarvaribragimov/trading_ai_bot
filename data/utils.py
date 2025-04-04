@@ -1,7 +1,7 @@
 from utils.db_api import database
 from datetime import datetime
 import pytz
-from ..bot import dp
+from bot import  dp
 
 def investment_text(insider,invest):
     text = (f"{insider}  investment: {invest} ")
