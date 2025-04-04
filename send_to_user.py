@@ -1,6 +1,6 @@
 import asyncio
 
-from beatifulsoup import get_column_inner_data
+from beatifulsoup import get_column_inner_data, get_company_price
 from data.get_company_info import get_stock_info
 from data.utils import getbarcharttableinfo, get_openai_question
 from utils.db_api import database
@@ -20,6 +20,7 @@ async def send_to_user(ticker, algorithm,date,day):
                 ticker = ticker.strip()
                 print('||',ticker,'||s')
                 barchart = await getbarcharttableinfo(ticker)
+                price = await get_company_price(ticker)
                 if '401' in barchart:
                     await bot.send_message(chat_id='523886206', text=f"Token eskirdi")
                     await bot.send_message(chat_id='6866199714', text=f"Token eskirdi")
@@ -38,7 +39,7 @@ async def send_to_user(ticker, algorithm,date,day):
                             try:
                                 web = Setup(ticker=str(ticker))
                                 web.init()
-                                path, price = web.screenshot()
+                                path = web.screenshot()
                                 web.close_browser()
                             except Exception as e:
                                 await bot.send_message(chat_id=SUPER_ADMIN, text=f'screnshot error: {e}')

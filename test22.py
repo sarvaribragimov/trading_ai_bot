@@ -3,6 +3,7 @@ import json
 
 from data.utils import get_tashkent_time
 from chatgpt import openai
+from beatifulsoup import get_column_inner_data, get_company_price
 
 
 # from chatgpt import openai
@@ -56,16 +57,16 @@ from chatgpt import openai
 #
 # t = get_openai_question('ru')
 # print(t)
-# async def main(ticker):
-#     barchart = await getbarcharttableinfo(ticker)
-#     co = await get_column_inner_data(ticker)
-#     questions = str(co) + str(barchart)
-#     print(questions)
-# asyncio.run(main('coin'))
+async def main(ticker):
+    # barchart = await getbarcharttableinfo(ticker)
+    co = await get_company_price(ticker)
+    # questions = str(co) + str(barchart)
+    print(co)
+asyncio.run(main('coin'))
 
-async def main():
-    ai_response = await openai('salom')
-    print(ai_response)
-asyncio.run(main())
+# async def main():
+#     ai_response = await openai('salom')
+#     print(ai_response)
+# asyncio.run(main())
 
 

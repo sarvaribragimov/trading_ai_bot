@@ -46,39 +46,17 @@ class Setup:
         time.sleep(2)
 
     def screenshot(self):
-        global prices
         ticker = self.ticker
         self.filepath = os.path.join(main_folder, f"{ticker}.png")
         self.driver.get('https://www.tradingview.com/chart/?symbol=' + ticker)
         time.sleep(2)
         self.check_offer_win()
-
-        try:
-            price_element = WebDriverWait(self.driver, 3).until(
-                EC.presence_of_element_located(
-                    (By.XPATH, "//div[contains(@class, 'container-qWcO4bp9')]")
-                )
-            )
-            price = price_element.text.strip()
-            lines = price.splitlines()
-            if len(lines) == 4:
-                main_price = lines[0].replace("price:", "").strip()  # Narx
-                currency = lines[1].strip()  # Valyuta
-                change_value = lines[2].strip()  # O'zgarish qiymati
-                change_percent = lines[3].strip()  # O'zgarish foizi
-                prices = f"Price: {main_price} {currency} | Change: {change_value} ({change_percent})"
-            else:
-                prices = "Narx ma'lumotlari to‘liq emas"
-        except Exception as e:
-            print(f"Narxni olishda xato: {e}")
-            prices = "Narxni olishda xato yuz berdi"
-
         chart = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[5]")
         screenshot = chart.screenshot_as_png
         image = Image.open(BytesIO(screenshot))
         image.save(self.filepath)
 
-        return self.filepath, prices
+        return self.filepath
 
     def close_browser(self):
         try:

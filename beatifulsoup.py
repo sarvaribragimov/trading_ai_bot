@@ -1,7 +1,7 @@
 import asyncio
 from bs4 import BeautifulSoup
 import httpx
-from data.get_company_info import extract_text_filter, companyinformation, findmarket, insider_ransaction, get_invest
+from data.get_company_info import extract_text_filter, companyinformation, findmarket, insider_ransaction, get_invest,company_price
 from data.utils import alltext
 from bot import dp
 
@@ -33,5 +33,21 @@ async def get_column_inner_data(ticker: str):
         return f"get_column_inner_data error: {e}"
 
 
-# s = asyncio.run(get_column_inner_data('AAPL'))
-# print(type(s))
+
+async def get_company_price(ticker: str):
+    try:
+        url = f"https://www.barchart.com/stocks/quotes/{ticker}/overview"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.110 Safari/537.36"
+        }
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            d = await company_price(soup)
+            return d.strip()
+        else:
+            return f"get_column_inner_data error: {response.status_code}"
+    except Exception as e:
+        await dp.bot.send_message(chat_id='523886206', text=f"get_column_inner_data error: {e}")
+        return f"get_column_inner_data error: {e}"

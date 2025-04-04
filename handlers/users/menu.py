@@ -22,9 +22,7 @@ from keyboards.default.all import menu_markup, informations_key, cities, lessons
 from gemini import generate
 from keyboards.inline.all import getTariffs
 from .userpermissons import is_granted, is_member_all_chats
-
-
-
+from beatifulsoup import get_company_price
 
 
 @dp.message_handler(content_types=['text'], state=User.menu, chat_type=types.ChatType.PRIVATE)
@@ -112,15 +110,16 @@ async def bot_start(message: types.Message, state: FSMContext):
 				await User.menu.set()
 			else:
 				co = await get_column_inner_data(ticker)
+				price = await get_company_price(ticker)
 				q = get_openai_question(lang)
 				questions = str(q) + str(co) + str(barchart)
 				ai_response = await openai(questions)
 				web = Setup(ticker=str(ticker))
 				web.init()
-				path, price = web.screenshot()
+				path = web.screenshot()
 				web.close_browser()
 				text = f"<b>Aksiya tikeri:</b> {ticker}\n<b>Islamicly:</b> {get_stock_info(ticker)}\n" \
-					   f"<b>Narxi:</b> {price[6:]}\n"
+					   f"<b>Narxi:</b> {price}\n"
 				with open(path, 'rb') as photo:
 					if len(text) + len(ai_response) > 1000:
 						await dp.bot.send_photo(chat_id=message.chat.id, photo=photo, caption=text)

@@ -22,6 +22,18 @@ async def extract_text_filter(soup):
 
     return text
 
+async def company_price(soup):
+    ng_init = soup.find('div', class_='page-title')['data-ng-init']
+    json_data = ng_init.split('init(')[1].rstrip(')')
+    data = json.loads(json_data)
+    lastPriceExt = data.get('lastPriceExt')
+    percentChangeExt = data.get('percentChangeExt')
+    lastPrice = data.get('lastPrice')
+    percent_change = data.get('percentChange')
+    session_date = data.get('sessionDateDisplayLong')
+    text = f"{lastPrice} ({percent_change}) pre-market: {lastPriceExt} ({percentChangeExt}) {session_date} "
+    return text
+
 async def findmarket(soup): #barchart.com fundamentals analize text
     market_cap = soup.find("span", text="Market Capitalization, $K")
     sales = soup.find("span", text="Annual Sales, $")
