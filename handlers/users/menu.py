@@ -69,8 +69,6 @@ async def bot_start(message: types.Message, state: FSMContext):
 		return
 	msg = await message.answer(texts.waiting_generate())
 	q = message.text
-	if lang != 'en':
-		q = funcs.trans(q, 'en')
 	await message.answer_chat_action(types.ChatActions.TYPING)
 	parts = await openai(q)
 	if parts:

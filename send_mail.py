@@ -79,11 +79,12 @@ async def send_mail():
             imap.login(IMAP_USERNAME, IMAP_PASSWORD)
             imap.select("inbox")
             status, email_ids = imap.search(None, 'UNSEEN FROM "alerts@thinkorswim.com"')
-            for email_id in email_ids[0].split():
-                status, email_data = imap.fetch(email_id, "(RFC822)")
-                raw_email = email_data[0][1]
-                msg = email.message_from_bytes(raw_email)
-                await process_email(msg)
+            if email_ids[0]:
+                for email_id in email_ids[0].split():
+                    status, email_data = imap.fetch(email_id, "(RFC822)")
+                    raw_email = email_data[0][1]
+                    msg = email.message_from_bytes(raw_email)
+                    await process_email(msg)
             await asyncio.sleep(2)
             imap.close()
             imap.logout()

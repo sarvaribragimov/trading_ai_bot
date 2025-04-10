@@ -57,12 +57,12 @@ from beatifulsoup import get_column_inner_data, get_company_price
 #
 # t = get_openai_question('ru')
 # print(t)
-async def main(ticker):
-    # barchart = await getbarcharttableinfo(ticker)
-    co = await get_company_price(ticker)
-    # questions = str(co) + str(barchart)
-    print(co)
-asyncio.run(main('coin'))
+# async def main(ticker):
+#     # barchart = await getbarcharttableinfo(ticker)
+#     co = await get_company_price(ticker)
+#     # questions = str(co) + str(barchart)
+#     print(co)
+# asyncio.run(main('coin'))
 
 # async def main():
 #     ai_response = await openai('salom')
@@ -70,3 +70,28 @@ asyncio.run(main('coin'))
 # asyncio.run(main())
 
 
+question = (
+  "Siz aynan qaysi GPT model asosida ishlayapsiz? "
+  "Faqat model nomini aniq ayting, masalan: gpt-3.5-turbo, gpt-4, gpt-4o. "
+  "Iltimos, uydirma yoki taxmin yozmang. Sizda mavjud real model nomini ayting."
+)
+
+from data.config import CHATGPT_API_KEY
+
+from openai import OpenAI
+
+
+client = OpenAI(
+  api_key=CHATGPT_API_KEY
+)
+response = client.chat.completions.create(
+  model="gpt-4o-2024-11-20",
+  store=True,
+  messages=[
+    {"role": "user", "content": question}
+  ]
+)
+print(str(response.choices[0].message.content))
+
+
+# model="gpt-4o-mini",
